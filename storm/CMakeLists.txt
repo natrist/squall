@@ -49,6 +49,8 @@ target_include_directories(storm
 )
 
 target_link_libraries(storm
+    PUBLIC
+        mem
     PRIVATE
         system
 )
