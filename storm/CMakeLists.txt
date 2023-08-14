@@ -53,6 +53,7 @@ target_link_libraries(storm
         mem
     PRIVATE
         system
+        bc
 )
 
 if(HAS_NO_INVALID_OFFSETOF)
