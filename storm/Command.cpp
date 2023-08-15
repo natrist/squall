@@ -387,7 +387,7 @@ int32_t SCmdRegisterArgument(uint32_t flags, uint32_t id, const char* name, void
     STORM_VALIDATE(namelength < 16, ERROR_INVALID_PARAMETER, 0);
     STORM_VALIDATE((!variablebytes) || variableptr, ERROR_INVALID_PARAMETER, 0);
     STORM_VALIDATE(((STORM_COMMAND_GET_ARG(flags) != STORM_COMMAND_ARG_REQUIRED) || !s_addedoptional), ERROR_INVALID_PARAMETER, 0);
-    STORM_VALIDATE((STORM_COMMAND_GET_ARG(flags) != STORM_COMMAND_TYPE_FLAGGED) || (namelength > 0), ERROR_INVALID_PARAMETER, 0);
+    STORM_VALIDATE((STORM_COMMAND_GET_ARG(flags) != STORM_COMMAND_ARG_FLAGGED) || (namelength > 0), ERROR_INVALID_PARAMETER, 0);
     STORM_VALIDATE((STORM_COMMAND_GET_TYPE(flags) != STORM_COMMAND_TYPE_BOOL) || (!variableptr) || (variablebytes == sizeof(uint32_t)), ERROR_INVALID_PARAMETER, 0);
 
     // If argument is flagged, it goes in the flag list
