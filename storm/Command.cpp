@@ -247,7 +247,7 @@ static int32_t ProcessFlags(const char* string, PROCESSING* processing, CMDERROR
         int32_t datachars;
         CMDDEF* ptr = nullptr;
         auto strlength = SStrLen(string);
-        auto lastflaglength = std::max(SStrLen(lastflag), 1);
+        auto lastflaglength = std::max(SStrLen(lastflag), size_t(1));
 
         while (lastflaglength--) {
             if (strlength + lastflaglength < 256) {
@@ -290,6 +290,8 @@ static int32_t ProcessFlags(const char* string, PROCESSING* processing, CMDERROR
 
     return 1;
 }
+
+static int32_t ProcessFile(const char* filename, PROCESSING* processing, CMDDEF** nextarg, CMDEXTRACALLBACKFCN extracallback, CMDERRORCALLBACKFCN errorcallback);
 
 static int32_t ProcessToken(const char* string, int32_t quoted, PROCESSING* processing, CMDDEF** nextarg, CMDEXTRACALLBACKFCN extracallback, CMDERRORCALLBACKFCN errorcallback) {
     if (string[0] == '@' && !quoted) {
