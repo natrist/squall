@@ -369,7 +369,7 @@ static int32_t ProcessFile(const char* filename, PROCESSING* processing, CMDDEF*
 
     buffer[bytesread] = '\0';
 
-    auto curr = buffer;
+    const char* curr = buffer;
     auto status = ProcessString(&curr, processing, nextarg, extracallback, errorcallback);
 
     SMemFree(buffer, __FILE__, __LINE__, 0);
