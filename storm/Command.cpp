@@ -2,7 +2,8 @@
 #include "storm/Error.hpp"
 #include "storm/String.hpp"
 
-#include "bc/os/File.hpp"
+#include <bc/os/File.hpp>
+#include <bc/os/CommandLine.hpp>
 
 #include <cstring>
 #include <algorithm>
