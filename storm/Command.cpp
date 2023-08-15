@@ -132,7 +132,7 @@ static void ConvertNumber(CMDDEF* ptr, const char* string, int32_t* datachars) {
     }
 
     if (ptr->variableptr) {
-        memcpy(ptr->variableptr, &ptr->currvaluestr, std::min(sizeof(ptr->currvalue), ptr->variablebytes));
+        memcpy(ptr->variableptr, &ptr->currvaluestr, std::min(static_cast<uint32_t>(sizeof(ptr->currvalue)), ptr->variablebytes));
     }
 }
 
