@@ -2,6 +2,8 @@
 #include "storm/Error.hpp"
 #include "storm/String.hpp"
 
+#include "storm/Memory.hpp"
+
 #include <bc/os/File.hpp>
 #include <bc/os/CommandLine.hpp>
 
@@ -10,6 +12,8 @@
 
 STORM_LIST(CMDDEF) s_arglist;
 STORM_LIST(CMDDEF) s_flaglist;
+
+static int32_t s_addedoptional = 0;
 
 const char* s_errorstr[] = {
     "Invalid argument: %s",
@@ -273,7 +277,7 @@ static int32_t ProcessFlags(const char* string, PROCESSING* processing, CMDERROR
         processing->namelength = lastflaglength;
         SStrCopy(processing->name, lastflag, 16);
 
-        if (!string[0] && STORM_COMMAND_GET_TYPE(ptr->flags) != STORM_COMMAND_TYPE_BOOLEAN) {
+        if (!string[0] && STORM_COMMAND_GET_TYPE(ptr->flags) != STORM_COMMAND_TYPE_BOOL) {
             return 1;
         }
 
@@ -343,7 +347,7 @@ static int32_t ProcessString(const char** stringptr, PROCESSING* processing, CMD
 
 static int32_t ProcessFile(const char* filename, PROCESSING* processing, CMDDEF** nextarg, CMDEXTRACALLBACKFCN extracallback, CMDERRORCALLBACKFCN errorcallback) {
     // TODO
-    auto file = OsCreateFile(filename, OS_GENERIC_READ, OS_FILE_SHARE_READ, OS_OPEN_EXISTING, OS_FILE_FLAG_SEQUENTIAL_SCAN, nullptr);
+    auto file = OsCreateFile(filename, OS_GENERIC_READ, OS_FILE_SHARE_READ, OS_OPEN_EXISTING, OS_FILE_FLAG_SEQUENTIAL_SCAN, 0);
 
     if (!file) {
         if (errorcallback) {
@@ -356,8 +360,8 @@ static int32_t ProcessFile(const char* filename, PROCESSING* processing, CMDDEF*
 
     auto buffer = reinterpret_cast<char*>(SMemAlloc(size + 1, __FILE__, __LINE__, 0));
 
-    uint32_t bytesread = 0;
-    OsReadFile(file, buffer, size, &bytesread, nullptr);
+    size_t bytesread = 0;
+    OsReadFile(file, buffer, size, &bytesread);
 
     OsCloseFile(file);
 
@@ -366,7 +370,7 @@ static int32_t ProcessFile(const char* filename, PROCESSING* processing, CMDDEF*
     auto curr = buffer;
     auto status = ProcessString(&curr, processing, nextarg, extracallback, errorcallback);
 
-    SMemFree(buffer, __FILE__, __LINE__);
+    SMemFree(buffer, __FILE__, __LINE__, 0);
 
     return status;
 }
