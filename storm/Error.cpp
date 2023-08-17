@@ -9,6 +9,8 @@
 
 static uint32_t s_lasterror = ERROR_SUCCESS;
 
+#if !defined(WHOA_SYSTEM_WIN)
+
 [[noreturn]] void SErrDisplayAppFatal(const char* format, ...) {
     va_list args;
     va_start(args, format);
@@ -58,6 +60,8 @@ int32_t SErrDisplayError(uint32_t errorcode, const char* filename, int32_t linen
         exit(exitcode);
     }
 }
+
+#endif
 
 int32_t SErrDisplayErrorFmt(uint32_t errorcode, const char* filename, int32_t linenumber, int32_t recoverable, uint32_t exitcode, const char* format, ...) {
     char buffer[2048];
