@@ -12,7 +12,7 @@ std::string errorf(const char *format, ...) {
     constexpr size_t size = 1024;
 
     char buf[size] = {0};
-    auto n = snprintf(buf, size, format, args);
+    auto n = vsnprintf(buf, size, format, args);
 
     va_end(args);
 
