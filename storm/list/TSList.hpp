@@ -7,6 +7,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <typeinfo>
+#include <new>
 
 #define STORM_LIST(T) TSList<T, TSGetLink<T>>
 
