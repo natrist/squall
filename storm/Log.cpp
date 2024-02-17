@@ -4,10 +4,19 @@
 #include "storm/Memory.hpp"
 #include <cstdio>
 #include <cstdlib>
+#include <ctime>
 #if defined(WHOA_SYSTEM_LINUX)
 #   include <sys/stat.h>
 #   include <sys/types.h>
 #endif
+#if defined(WHOA_SYSTEM_MAC)
+#   include <mach/mach_time.h>
+#endif
+
+
+#define STORM_LOG_MAX_CHANNELS 4
+#define STORM_LOG_MAX_BUFFER 0x10000
+#define STORM_LOG_FLUSH_POINT 0xC000
 
 
 typedef struct _LOG {
@@ -16,25 +25,25 @@ typedef struct _LOG {
     char filename[STORM_MAX_PATH];
     FILE* file;
     uint32_t flags;
-    uint32_t bufferused;
-    uint32_t pendpoint;
+    size_t bufferused;
+    size_t pendpoint;
     int32_t indent;
     int32_t timeStamp;
-    char buffer[0x10000];
+    char buffer[STORM_LOG_MAX_BUFFER];
 } LOG;
 
 
-static uint32_t lasttime;
-static uint32_t timestrlen;
-static char timestr[64];
+static uint64_t lasttime = 0;
+static size_t timestrlen = 0;
+static char timestr[64] = { '\0' };
 
-static SCritSect* s_critsect[4];
-static SCritSect* s_defaultdir_critsect;
+static SCritSect* s_critsect[STORM_LOG_MAX_CHANNELS] = { nullptr };
+static SCritSect* s_defaultdir_critsect = nullptr;
 
-static LOG* s_loghead[4];
+static LOG* s_loghead[STORM_LOG_MAX_CHANNELS] = { nullptr };
 static HSLOG s_sequence = 0;
 
-static char s_defaultdir[STORM_MAX_PATH];
+static char s_defaultdir[STORM_MAX_PATH] = { '\0' };
 static bool s_logsysteminit = false;
 
 
@@ -56,11 +65,13 @@ static LOG* LockLog(HSLOG log, HLOCKEDLOG* lockedhandle, bool createifnecessary)
         result = result->next;
     }
 
-    if (result)
+    if (result) {
         return result;
+    }
 
-    if (createifnecessary)
+    if (createifnecessary) {
         result = (LOG*)SMemAlloc(sizeof(LOG), __FILE__, __LINE__, 0);
+    }
 
     if (!result) {
         s_critsect[index]->Leave();
@@ -102,8 +113,9 @@ static void UnlockDeleteLog(LOG* logptr, HLOCKEDLOG lockedhandle) {
 }
 
 static void FlushLog(LOG* logptr) {
-    if (!logptr->bufferused)
+    if (!logptr->bufferused) {
         return;
+    }
 
     STORM_ASSERT(logptr->file);
     fwrite(logptr->buffer, 1, logptr->bufferused, logptr->file);
@@ -114,8 +126,9 @@ static void FlushLog(LOG* logptr) {
 
 static const char* PrependDefaultDir(char* newfilename, uint32_t newfilenamesize, const char* filename)
 {
-    if (!filename || !filename[0] || filename[1] == ':' || SStrChr(filename, '\\') || SStrChr(filename, '/'))
+    if (!filename || !filename[0] || filename[1] == ':' || SStrChr(filename, '\\') || SStrChr(filename, '/')) {
         return filename;
+    }
 
     s_defaultdir_critsect->Enter();
 
@@ -126,8 +139,9 @@ static const char* PrependDefaultDir(char* newfilename, uint32_t newfilenamesize
 #if defined(WHOA_SYSTEM_WIN)
         GetModuleFileNameA(NULL, newfilename, newfilenamesize);
         char* slash = SStrChrR(newfilename, '\\');
-        if (slash)
+        if (slash) {
             slash[0] = '\0';
+        }
 
         SStrPack(newfilename, "\\", newfilenamesize);
         SStrPack(newfilename, filename, newfilenamesize);
@@ -135,12 +149,14 @@ static const char* PrependDefaultDir(char* newfilename, uint32_t newfilenamesize
 
 #if defined(WHOA_SYSTEM_LINUX)
         char buffer[PATH_MAX];
-        if (!realpath("/proc/self/exe", buffer))
+        if (!realpath("/proc/self/exe", buffer)) {
             buffer[0] = '\0';
+        }
 
         char* slash = SStrChrR(buffer, '/');
-        if (slash)
+        if (slash) {
             slash[0] = '\0';
+        }
 
         SStrCopy(newfilename, buffer, newfilenamesize);
         SStrPack(newfilename, "/", newfilenamesize);
@@ -157,61 +173,71 @@ static const char* PrependDefaultDir(char* newfilename, uint32_t newfilenamesize
 }
 
 static size_t PathGetRootChars(const char* path) {
-    if (path[0] == '/')
+    if (path[0] == '/') {
+        if (!SStrCmpI(path, "/Volumes/", 9)) {
+            const char* offset = SStrChr(path + 9, '/');
+            if (offset) {
+                return offset - path + 1;
+            }
+        }
         return 1;
+    }
 
-    size_t length = SStrLen(path);
-
-    if (length < 2)
+    if (SStrLen(path) < 2) {
         return 0;
+    }
 
-    if (path[1] == ':')
+    if (path[1] == ':') {
         return (path[2] == '\\') ? 3 : 2;
+    }
 
-    if (path[0] != '\\' || path[1] != '\\')
+    if (path[0] != '\\' || path[1] != '\\') {
         return 0;
+    }
 
-    const char* v5 = path + 2;
-    size_t v6 = 2;
-    do {
-        if (v5)
-            v5 = SStrChr(v5, '\\') + 1;
-        --v6;
-    } while (v6);
+    const char* slash1 = SStrChr(path + 2, '\\');
+    if (!slash1) {
+        return 0;
+    }
 
-    if (v5)
-        return v5 - path;
+    const char* slash2 = SStrChr(slash1 + 1, '\\');
+    if (!slash2) {
+        return 0;
+    }
 
-    return length;
+    return slash2 - path + 1;
 }
 
 static void PathStripFilename(char* path) {
-    char* v2; // edi
-    char* v3; // eax
-    char* v4; // eax
+    char* slash = SStrChrR(path, '/');
+    char* backslash = SStrChrR(path, '\\');
+    if (slash <= backslash) {
+        slash = backslash;
+    }
 
-    v2 = SStrChrR(path, '\\');
-    v3 = SStrChrR(path, '/');
-    if (v2 <= v3)
-        v2 = v3;
+    if (!slash) {
+        return;
+    }
 
-    if (v2) {
-        v4 = &path[PathGetRootChars(path)];
-        if (v2 >= v4)
-            v2[1] = 0;
-        else
-            *v4 = 0;
+    char* relative = &path[PathGetRootChars(path)];
+    if (slash >= relative) {
+        slash[1] = 0;
+    }
+    else {
+        relative[0] = 0;
     }
 }
 
 static void PathConvertSlashes(char* path) {
     while (*path) {
 #if defined(WHOA_SYSTEM_WIN)
-        if (*path == '/')
+        if (*path == '/') {
             *path = '\\';
+        }
 #else
-        if (*path == '\\')
+        if (*path == '\\') {
             *path = '/';
+        }
 #endif
         path++;
     }
@@ -224,21 +250,22 @@ static bool CreateFileDirectory(const char* path) {
     SStrCopy(buffer, path, STORM_MAX_PATH);
     PathStripFilename(buffer);
 
-    char* v1 = &buffer[PathGetRootChars(buffer)];
-    PathConvertSlashes(v1);
+    char* relative = &buffer[PathGetRootChars(buffer)];
+    PathConvertSlashes(relative);
 
-    for (size_t i = 0; v1[i]; ++i) {
-        if (v1[i] != '\\' && v1[i] != '/')
+    for (size_t i = 0; relative[i]; ++i) {
+        if (relative[i] != '\\' && relative[i] != '/') {
             continue;
+        }
 
-        char slash = v1[i];
-        v1[i] = '\0';
+        char slash = relative[i];
+        relative[i] = '\0';
 #if defined(WHOA_SYSTEM_WIN)
         CreateDirectoryA(buffer, NULL);
 #else
         mkdir(buffer, 0755);
 #endif
-        v1[i] = slash;
+        relative[i] = slash;
     }
 
 #if defined(WHOA_SYSTEM_WIN)
@@ -261,35 +288,124 @@ static bool OpenLogFile(const char* filename, FILE** file, uint32_t flags) {
     return false;
 }
 
-void SLogInitialize() {
-    if (s_logsysteminit)
-        return;
+static void OutputIndent(LOG* logptr) {
+    int32_t indent = logptr->indent;
+    if (indent > 0) {
+        if (indent >= 128) {
+            indent = 128;
+        }
+        memset(&logptr->buffer[logptr->bufferused], ' ', indent);
+        logptr->buffer[indent + logptr->bufferused] = 0;
+        logptr->bufferused += indent;
+    }
+}
 
-    for (size_t i = 0; i < sizeof(s_loghead) / sizeof(s_loghead[0]); ++i)
+static void OutputReturn(LOG* logptr) {
+    // strcpy(&logptr->buffer[logptr->bufferused], "\r\n");
+    // logptr->bufferused += 2;
+
+    // No need to write "\r\n" with fopen() in text mode
+    logptr->buffer[logptr->bufferused] = '\n';
+    logptr->bufferused++;
+}
+
+static void OutputTime(LOG* logptr, bool show) {
+    if (logptr->timeStamp == 0) {
+        return;
+    }
+
+    uint64_t ticks = 0;
+
+#if defined(WHOA_SYSTEM_WIN)
+    ticks = GetTickCount64();
+#endif
+
+#if defined(WHOA_SYSTEM_LINUX)
+    struct timespec ts;
+    if (clock_gettime(CLOCK_MONOTONIC_COARSE, &ts) == 0) {
+        ticks = ts.tv_sec * 1000 + ts.tv_nsec / 1000000;
+    }
+#endif
+
+#if defined(WHOA_SYSTEM_MAC)
+    ticks = mach_absolute_time();
+#endif
+
+    if (ticks != lasttime) {
+        lasttime = ticks;
+
+        time_t t = time(nullptr);
+        struct tm* ts = localtime(&t);
+        // No milliseconds for now
+        timestrlen = SStrPrintf(timestr,
+            sizeof(timestr),
+            "%d/%d %02d:%02d:%02d.%03d  ",
+            ts->tm_mon + 1,
+            ts->tm_mday,
+            ts->tm_hour,
+            ts->tm_min,
+            ts->tm_sec,
+            0);
+    }
+
+    if (show) {
+        memcpy(&logptr->buffer[logptr->bufferused], timestr, timestrlen);
+    } else {
+        memset(&logptr->buffer[logptr->bufferused], ' ', timestrlen);
+    }
+    logptr->bufferused += timestrlen;
+    logptr->buffer[logptr->bufferused] = '\0';
+}
+
+static bool PrepareLog(LOG* logptr) {
+    if (logptr->file) {
+        return true;
+    }
+
+    if (OpenLogFile(logptr->filename, &logptr->file, logptr->flags)) {
+        return true;
+    }
+
+    logptr->filename[0] = '\0';
+    return false;
+}
+
+void SLogInitialize() {
+    if (s_logsysteminit) {
+        return;
+    }
+
+    for (size_t i = 0; i < STORM_LOG_MAX_CHANNELS; ++i) {
         s_critsect[i] = new SCritSect();
+    }
 
     s_defaultdir_critsect = new SCritSect();
 
     s_logsysteminit = true;
 }
 
-bool SLogIsInitialized() {
-    return s_logsysteminit;
+int SLogIsInitialized() {
+    return s_logsysteminit ? 1 : 0;
 }
 
 void SLogDestroy() {
-    // TODO: SLogFlushAll();
-    // TODO: for (...) { SLogClose }
-
-    for (size_t i = 0; i < sizeof(s_loghead) / sizeof(s_loghead[0]); ++i)
+    for (size_t i = 0; i < STORM_LOG_MAX_CHANNELS; ++i) {
+        s_critsect[i]->Enter();
+        for (LOG* log = s_loghead[i]; log; log = log->next) {
+            if (log->file) {
+                FlushLog(log);
+                fclose(log->file);
+            }
+        }
+        s_critsect[i]->Leave();
         delete s_critsect[i];
+    }
 
     delete s_defaultdir_critsect;
-
     s_logsysteminit = false;
 }
 
-uint32_t SLogCreate(const char* filename, uint32_t flags, HSLOG* log) {
+int SLogCreate(const char* filename, uint32_t flags, HSLOG* log) {
     STORM_ASSERT(filename);
     STORM_ASSERT(*filename);
     STORM_ASSERT(log);
@@ -299,8 +415,7 @@ uint32_t SLogCreate(const char* filename, uint32_t flags, HSLOG* log) {
 
     *log = 0;
 
-    if (flags & 2)
-    {
+    if (flags & 2) {
         filename = "";
         flags &= ~1u;
     }
@@ -325,13 +440,15 @@ uint32_t SLogCreate(const char* filename, uint32_t flags, HSLOG* log) {
 }
 
 void SLogClose(HSLOG log) {
-    if (!s_logsysteminit)
+    if (!s_logsysteminit) {
         return;
+    }
 
     HLOCKEDLOG lockedhandle;
     LOG* logptr = LockLog(log, &lockedhandle, false);
-    if (!logptr)
+    if (!logptr) {
         return;
+    }
 
     if (logptr->file) {
         FlushLog(logptr);
@@ -339,4 +456,123 @@ void SLogClose(HSLOG log) {
     }
 
     UnlockDeleteLog(logptr, lockedhandle);
+}
+
+void SLogFlush(HSLOG log) {
+    HLOCKEDLOG lockedhandle;
+    LOG* logptr = LockLog(log, &lockedhandle, false);
+    if (logptr) {
+        if (logptr->file) {
+            FlushLog(logptr);
+        }
+        UnlockLog(lockedhandle);
+    }
+}
+
+void SLogFlushAll() {
+    for (size_t i = 0; i < STORM_LOG_MAX_CHANNELS; ++i) {
+        s_critsect[i]->Enter();
+        for (LOG* log = s_loghead[i]; log; log = log->next) {
+            if (log->file) {
+                FlushLog(log);
+            }
+        }
+        s_critsect[i]->Leave();
+    }
+}
+
+void SLogGetDefaultDirectory(char* dirname, size_t dirnamesize) {
+    s_defaultdir_critsect->Enter();
+    SStrCopy(dirname, s_defaultdir, dirnamesize);
+    s_defaultdir_critsect->Leave();
+}
+
+void SLogSetDefaultDirectory(const char* dirname) {
+    s_defaultdir_critsect->Enter();
+    size_t size = SStrCopy(s_defaultdir, dirname, STORM_MAX_PATH);
+    PathConvertSlashes(s_defaultdir);
+#if defined(WHOA_SYSTEM_WIN)
+    char slash = '\\';
+#else
+    char slash = '/';
+#endif
+    if (size < STORM_MAX_PATH - 1 && s_defaultdir[size - 1] != slash) {
+        s_defaultdir[size] = slash;
+        s_defaultdir[size + 1] = 0;
+    }
+    s_defaultdir_critsect->Leave();
+}
+
+int32_t SLogSetAbsIndent(HSLOG log, int32_t indent) {
+    HLOCKEDLOG lockedhandle;
+    LOG* logptr = LockLog(log, &lockedhandle, false);
+    if (logptr) {
+        int32_t result = logptr->indent;
+        logptr->indent = indent;
+        UnlockLog(lockedhandle);
+        return result;
+    }
+    return 0;
+}
+
+int32_t SLogSetIndent(HSLOG log, int32_t deltaIndent) {
+    HLOCKEDLOG lockedhandle;
+    LOG* logptr = LockLog(log, &lockedhandle, false);
+    if (logptr) {
+        int32_t result = logptr->indent;
+        logptr->indent = result + deltaIndent;
+        UnlockLog(lockedhandle);
+        return result;
+    }
+    return 0;
+}
+
+void SLogSetTimestamp(HSLOG log, int32_t timeStamp) {
+    HLOCKEDLOG lockedhandle;
+    LOG* logptr = LockLog(log, &lockedhandle, false);
+    if (logptr) {
+        logptr->timeStamp = timeStamp;
+        UnlockLog(lockedhandle);
+    }
+}
+
+void SLogVWrite(HSLOG log, const char* format, va_list arglist) {
+    HLOCKEDLOG lockedhandle;
+    LOG* logptr = LockLog(log, &lockedhandle, false);
+    if (!logptr) {
+        return;
+    }
+
+    if (PrepareLog(logptr)) {
+        OutputTime(logptr, true);
+        OutputIndent(logptr);
+
+        int count = vsnprintf(
+            &logptr->buffer[logptr->bufferused],
+            STORM_LOG_MAX_BUFFER - logptr->bufferused,
+            format,
+            arglist);
+        if (count > 0) {
+            logptr->bufferused += count;
+        }
+
+        OutputReturn(logptr);
+
+#if defined(WHOA_SYSTEM_WIN)
+        // if (g_opt.echotooutputdebugstring)
+        OutputDebugStringA(&logptr->buffer[logptr->pendpoint]);
+#endif
+
+        logptr->pendpoint = logptr->bufferused;
+        if (logptr->bufferused >= STORM_LOG_FLUSH_POINT) {
+            FlushLog(logptr);
+        }
+    }
+    UnlockLog(lockedhandle);
+}
+
+void SLogWrite(HSLOG log, const char* format, ...) {
+    va_list arglist;
+    va_start(arglist, format);
+    SLogVWrite(log, format, arglist);
 }
