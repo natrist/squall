@@ -124,8 +124,7 @@ static void FlushLog(LOG* logptr) {
     logptr->pendpoint = 0;
 }
 
-static const char* PrependDefaultDir(char* newfilename, uint32_t newfilenamesize, const char* filename)
-{
+static const char* PrependDefaultDir(char* newfilename, uint32_t newfilenamesize, const char* filename) {
     if (!filename || !filename[0] || filename[1] == ':' || SStrChr(filename, '\\') || SStrChr(filename, '/')) {
         return filename;
     }
@@ -137,7 +136,7 @@ static const char* PrependDefaultDir(char* newfilename, uint32_t newfilenamesize
         SStrPack(newfilename, filename, newfilenamesize);
     } else {
 #if defined(WHOA_SYSTEM_WIN)
-        GetModuleFileNameA(NULL, newfilename, newfilenamesize);
+        GetModuleFileName(NULL, newfilename, newfilenamesize);
         char* slash = SStrChrR(newfilename, '\\');
         if (slash) {
             slash[0] = '\0';
@@ -222,8 +221,7 @@ static void PathStripFilename(char* path) {
     char* relative = &path[PathGetRootChars(path)];
     if (slash >= relative) {
         slash[1] = 0;
-    }
-    else {
+    } else {
         relative[0] = 0;
     }
 }
@@ -261,7 +259,7 @@ static bool CreateFileDirectory(const char* path) {
         char slash = relative[i];
         relative[i] = '\0';
 #if defined(WHOA_SYSTEM_WIN)
-        CreateDirectoryA(buffer, NULL);
+        CreateDirectory(buffer, NULL);
 #else
         mkdir(buffer, 0755);
 #endif
@@ -269,7 +267,7 @@ static bool CreateFileDirectory(const char* path) {
     }
 
 #if defined(WHOA_SYSTEM_WIN)
-    return CreateDirectoryA(buffer, NULL);
+    return CreateDirectory(buffer, NULL);
 #else
     return !mkdir(buffer, 0755);
 #endif
@@ -560,7 +558,7 @@ void SLogVWrite(HSLOG log, const char* format, va_list arglist) {
 
 #if defined(WHOA_SYSTEM_WIN)
         // if (g_opt.echotooutputdebugstring)
-        OutputDebugStringA(&logptr->buffer[logptr->pendpoint]);
+        OutputDebugString(&logptr->buffer[logptr->pendpoint]);
 #endif
 
         logptr->pendpoint = logptr->bufferused;
