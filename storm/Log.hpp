@@ -2,6 +2,8 @@
 #define STORM_LOG_HPP
 
 
+#include <cstdarg>
+
 #include "storm/Common.hpp"
 #include "storm/String.hpp"
 

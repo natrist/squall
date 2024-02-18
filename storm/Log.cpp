@@ -5,12 +5,19 @@
 #include <cstdio>
 #include <cstdlib>
 #include <ctime>
+#include <cstring>
+
 #if defined(WHOA_SYSTEM_LINUX)
-#   include <sys/stat.h>
-#   include <sys/types.h>
+#include <sys/stat.h>
+#include <sys/types.h>
 #endif
+
 #if defined(WHOA_SYSTEM_MAC)
-#   include <mach/mach_time.h>
+#include <sys/stat.h>
+#include <sys/types.h>
+#include <mach/mach_time.h>
+#include <mach-o/dyld.h>
+#include <sys/syslimits.h>
 #endif
 
 
@@ -163,7 +170,25 @@ static const char* PrependDefaultDir(char* newfilename, uint32_t newfilenamesize
 #endif
 
 #if defined(WHOA_SYSTEM_MAC)
-        // TODO: GetModuleFileName() for Mac implementation
+        newfilename[0] = '\0';
+
+        char path[PATH_MAX] = {0};
+        char actualPath[PATH_MAX] = {0};
+        uint32_t size = PATH_MAX;
+        if (_NSGetExecutablePath(path, &size) == 0) {
+            if (!realpath(path, actualPath)) {
+                actualPath[0] = '\0';
+            }
+        }
+
+        char* slash = SStrChrR(actualPath, '/');
+        if (slash) {
+            slash[0] = '\0';
+        }
+
+        SStrCopy(newfilename, actualPath, newfilenamesize);
+        SStrPack(newfilename, "/", newfilenamesize);
+        SStrPack(newfilename, filename, newfilenamesize);
 #endif
     }
 
