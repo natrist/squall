@@ -414,12 +414,17 @@ int SLogIsInitialized() {
 void SLogDestroy() {
     for (size_t i = 0; i < STORM_LOG_MAX_CHANNELS; ++i) {
         s_critsect[i]->Enter();
-        for (LOG* log = s_loghead[i]; log; log = log->next) {
+        LOG* log = s_loghead[i];
+        while (log) {
             if (log->file) {
                 FlushLog(log);
                 fclose(log->file);
             }
+            LOG* next = log->next;
+            SMemFree(log);
+            log = next;
         }
+        s_loghead[i] = nullptr;
         s_critsect[i]->Leave();
         delete s_critsect[i];
     }
