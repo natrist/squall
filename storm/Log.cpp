@@ -305,7 +305,7 @@ static bool OpenLogFile(const char* filename, FILE** file, uint32_t flags) {
         char newfilename[STORM_MAX_PATH];
         PrependDefaultDir(newfilename, STORM_MAX_PATH, filename);
         CreateFileDirectory(newfilename);
-        *file = fopen(newfilename, (flags & 2) ? "a+" : "w+");
+        *file = fopen(newfilename, (flags & SLOG_FLAG_APPEND) ? "a" : "w");
         return (*file != nullptr);
     }
     return false;
@@ -438,12 +438,12 @@ int SLogCreate(const char* filename, uint32_t flags, HSLOG* log) {
 
     *log = 0;
 
-    if (flags & 2) {
+    if (flags & SLOG_FLAG_NO_FILE) {
         filename = "";
-        flags &= ~1u;
+        flags &= ~SLOG_FLAG_OPEN_FILE;
     }
 
-    if ((flags & 1) == 0 || OpenLogFile(filename, &file, flags)) {
+    if ((flags & SLOG_FLAG_OPEN_FILE) == 0 || OpenLogFile(filename, &file, flags)) {
         s_sequence = reinterpret_cast<HSLOG>(reinterpret_cast<size_t>(s_sequence) + 1);
         *log = s_sequence;
         LOG* result = LockLog(s_sequence, &lockedhandle, true);
