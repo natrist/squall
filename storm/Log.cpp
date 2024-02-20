@@ -624,6 +624,8 @@ void SLogVWrite(HSLOG log, const char* format, va_list arglist) {
 #if defined(WHOA_SYSTEM_WIN)
         // if (g_opt.echotooutputdebugstring)
         OutputDebugString(&logptr->buffer[logptr->pendpoint]);
+#else
+        fputs(&logptr->buffer[logptr->pendpoint], stderr);
 #endif
 
         logptr->pendpoint = logptr->bufferused;
