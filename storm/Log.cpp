@@ -10,7 +10,7 @@
 #if defined(WHOA_SYSTEM_LINUX)
 #include <sys/stat.h>
 #include <sys/types.h>
-#include <limits.h>
+#include <linux/limits.h>
 #endif
 
 #if defined(WHOA_SYSTEM_MAC)
