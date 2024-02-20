@@ -5,16 +5,14 @@
 #include <cstdarg>
 #include <cstdint>
 
-#include "storm/Common.hpp"
+#include "storm/Handle.hpp"
 #include "storm/String.hpp"
 
 
-enum : uint32_t {
-    SLOG_FLAG_DEFAULT   = 0, // Create or open log file with first SLogWrite() call
-    SLOG_FLAG_OPEN_FILE = 1, // Create or open log file with SLogCreate()
-    SLOG_FLAG_NO_FILE   = 2, // Don't use log file (use OutputDebugString or console only)
-    SLOG_FLAG_APPEND    = 4  // Don't truncate existing log file
-};
+#define SLOG_FLAG_DEFAULT   0 // Create or open log file with first SLogWrite() call
+#define SLOG_FLAG_OPEN_FILE 1 // Create or open log file with SLogCreate()
+#define SLOG_FLAG_NO_FILE   2 // Don't use log file (use OutputDebugString or console only)
+#define SLOG_FLAG_APPEND    4 // Don't truncate existing log file
 
 DECLARE_STRICT_HANDLE(HSLOG);
 DECLARE_STRICT_HANDLE(HLOCKEDLOG);
