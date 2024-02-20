@@ -9,12 +9,14 @@
 
 #if defined(WHOA_SYSTEM_LINUX)
 #include <sys/stat.h>
+#include <sys/time.h>
 #include <sys/types.h>
-#include <limits.h>
+#include <linux/limits.h>
 #endif
 
 #if defined(WHOA_SYSTEM_MAC)
 #include <sys/stat.h>
+#include <sys/time.h>
 #include <sys/types.h>
 #include <mach/mach_time.h>
 #include <mach-o/dyld.h>
@@ -25,6 +27,22 @@
 #define STORM_LOG_MAX_CHANNELS 4
 #define STORM_LOG_MAX_BUFFER 0x10000
 #define STORM_LOG_FLUSH_POINT 0xC000
+
+
+#if defined(WHOA_SYSTEM_WIN)
+typedef SYSTEMTIME SLOGTIME;
+#else
+typedef struct _SLOGTIME {
+    uint16_t wYear;
+    uint16_t wMonth;
+    uint16_t wDayOfWeek;
+    uint16_t wDay;
+    uint16_t wHour;
+    uint16_t wMinute;
+    uint16_t wSecond;
+    uint16_t wMilliseconds;
+} SLOGTIME;
+#endif
 
 
 typedef struct _LOG {
@@ -40,10 +58,6 @@ typedef struct _LOG {
     char buffer[STORM_LOG_MAX_BUFFER];
 } LOG;
 
-
-static uint64_t lasttime = 0;
-static size_t timestrlen = 0;
-static char timestr[64] = { '\0' };
 
 static SCritSect* s_critsect[STORM_LOG_MAX_CHANNELS] = { nullptr };
 static SCritSect* s_defaultdir_critsect = nullptr;
@@ -306,7 +320,7 @@ static bool OpenLogFile(const char* filename, FILE** file, uint32_t flags) {
         char newfilename[STORM_MAX_PATH];
         PrependDefaultDir(newfilename, STORM_MAX_PATH, filename);
         CreateFileDirectory(newfilename);
-        *file = fopen(newfilename, (flags & SLOG_FLAG_APPEND) ? "a" : "w");
+        *file = fopen(newfilename, (flags & SLOG_FLAG_APPEND) ? "ab" : "wb");
         return (*file != nullptr);
     }
     return false;
@@ -325,15 +339,18 @@ static void OutputIndent(LOG* logptr) {
 }
 
 static void OutputReturn(LOG* logptr) {
-    // strcpy(&logptr->buffer[logptr->bufferused], "\r\n");
-    // logptr->bufferused += 2;
-
-    // No need to write "\r\n" with fopen() in text mode
-    logptr->buffer[logptr->bufferused] = '\n';
-    logptr->bufferused++;
+#if defined(WHOA_SYSTEM_WIN)
+    logptr->buffer[logptr->bufferused++] = '\r';
+#endif
+    logptr->buffer[logptr->bufferused++] = '\n';
+    logptr->buffer[logptr->bufferused] = '\0';
 }
 
 static void OutputTime(LOG* logptr, bool show) {
+    static uint64_t lasttime = 0;
+    static size_t timestrlen = 0;
+    static char timestr[64] = { '\0' };
+
     if (logptr->timeStamp == 0) {
         return;
     }
@@ -358,18 +375,35 @@ static void OutputTime(LOG* logptr, bool show) {
     if (ticks != lasttime) {
         lasttime = ticks;
 
+        SLOGTIME systime;
+
+#if defined(WHOA_SYSTEM_WIN)
+        GetLocalTime(&systime);
+#else
         time_t t = time(nullptr);
         struct tm* ts = localtime(&t);
-        // No milliseconds for now
+        systime.wYear = ts->tm_year + 1900;
+        systime.wMonth = ts->tm_mon + 1;
+        systime.wDayOfWeek = ts->tm_wday;
+        systime.wDay = ts->tm_mday;
+        systime.wHour = ts->tm_hour;
+        systime.wMinute = ts->tm_min;
+        systime.wSecond = ts->tm_sec;
+
+        struct timeval tv = { 0 };
+        gettimeofday(&tv, 0);
+        systime.wMilliseconds = tv.tv_usec / 1000;
+#endif
+
         timestrlen = SStrPrintf(timestr,
-            sizeof(timestr),
-            "%d/%d %02d:%02d:%02d.%03d  ",
-            ts->tm_mon + 1,
-            ts->tm_mday,
-            ts->tm_hour,
-            ts->tm_min,
-            ts->tm_sec,
-            0);
+                                sizeof(timestr),
+                                "%u/%u %02u:%02u:%02u.%03u  ",
+                                systime.wMonth,
+                                systime.wDay,
+                                systime.wHour,
+                                systime.wMinute,
+                                systime.wSecond,
+                                systime.wMilliseconds);
     }
 
     if (show) {
