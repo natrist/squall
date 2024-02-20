@@ -53,5 +53,6 @@ TEST_CASE("SThread::Create", "[thread]") {
         auto threadName = const_cast<char*>("TestThread");
         auto threadParam = SMemAlloc(16, nullptr, 0, 0x0);
         REQUIRE(SThread::Create(threadProc, threadParam, thread, threadName, 0) != 0);
+        thread.Wait(100);
     }
 }
