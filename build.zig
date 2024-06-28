@@ -42,7 +42,7 @@ pub fn build(b: *std.Build) void {
     "storm/big/BigStack.cpp",
     "storm/big/Ops.cpp",
 
-    "storm/hash/HashKey.cpp",
+    "storm/hash/Hashkey.cpp",
 
     "storm/queue/CSBasePriority.cpp",
     "storm/queue/CSBasePriorityQueue.cpp",
