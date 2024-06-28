@@ -1,0 +1,19 @@
+.{
+    .name = "squall",
+    .version = "1.0.0",
+    .paths = .{ "LICENSE", "README.md", "build.zig", "build.zig.zon" },
+    .dependencies = .{
+        .system = .{
+            .url = "https://github.com/thunderbrewhq/system/archive/refs/heads/master.zip",
+            .hash = "1220d6a6e4e2f836c1c22eb128e6c74c773ea191bfbaac02601dcb5238c2b0874182",
+        },
+        .bc = .{
+            .url = "https://github.com/thunderbrewhq/bc/archive/refs/heads/master.zip",
+            .hash = "12202ac82de86543714d79a8c055b7357fd8c4c6ba3bf73ec4f1cdd5771885c728ad",
+        },
+        .mem = .{
+            .url = "https://github.com/thunderbrewhq/mem/archive/refs/heads/master.zip",
+            .hash = "122037f90f957dec643fe16e0092c8b971b7dd0a0f8096d00fa134e254053fbced87",
+        },
+    },
+}
