@@ -1,7 +1,7 @@
 .{
     .name = "squall",
     .version = "1.0.0",
-    .paths = .{ "LICENSE", "README.md", "build.zig", "build.zig.zon" },
+    .paths = .{ "LICENSE", "README.md", "build.zig", "build.zig.zon", "storm" },
     .dependencies = .{
         .system = .{
             .url = "https://github.com/thunderbrewhq/system/archive/refs/heads/master.zip",
