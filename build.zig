@@ -115,6 +115,8 @@ pub fn build(b: *std.Build) void {
     }
   }
 
+  storm.installHeadersDirectory(b.path("storm"), "storm", .{ .include_extensions = &.{"hpp"} });
+
   // StormTest executable
   const storm_test_exe = b.addExecutable(.{
     .name = "StormTest",

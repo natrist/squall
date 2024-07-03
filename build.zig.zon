@@ -9,11 +9,11 @@
         },
         .bc = .{
             .url = "https://github.com/thunderbrewhq/bc/archive/refs/heads/master.zip",
-            .hash = "12202ac82de86543714d79a8c055b7357fd8c4c6ba3bf73ec4f1cdd5771885c728ad",
+            .hash = "122095e77b9c52e9a317b57474d9735e82973bb46e011b36107b2a9d55bb62a7704b",
         },
         .mem = .{
             .url = "https://github.com/thunderbrewhq/mem/archive/refs/heads/master.zip",
-            .hash = "122037f90f957dec643fe16e0092c8b971b7dd0a0f8096d00fa134e254053fbced87",
+            .hash = "12205739d6afa86c264dde5ff94fdf7f14df68122054ce899934faf972d0b11d7ac5",
         },
     },
 }
