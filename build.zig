@@ -127,6 +127,7 @@ pub fn build(b: *std.Build) void {
   system.add_defines(storm_test_exe);
 
   storm_test_exe.linkLibrary(storm);
+  storm_test_exe.addIncludePath(b.path("."));
 
   storm_test_exe.addCSourceFiles(.{
     .files = &.{

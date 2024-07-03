@@ -9,7 +9,7 @@
         },
         .bc = .{
             .url = "https://github.com/thunderbrewhq/bc/archive/refs/heads/master.zip",
-            .hash = "12204e26a0419991cf2b34acc8a4685b893d45ac1b553ba41480ad14d1da1cee98ed",
+            .hash = "12200621484500271138648816b6c8f99bfca5e4d7329ea4620aa4183549f2eac9ed",
         },
         .mem = .{
             .url = "https://github.com/thunderbrewhq/mem/archive/refs/heads/master.zip",
