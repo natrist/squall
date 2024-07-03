@@ -22,10 +22,8 @@ pub fn build(b: *std.Build) void {
   const mem = b.dependency("mem", .{});
   const bc = b.dependency("bc", .{});
   // Publicly link mem
-  storm.addIncludePath(mem.path("."));
   storm.linkLibrary(mem.artifact("mem"));
   // Link bc
-  storm.addIncludePath(bc.path("."));
   storm.linkLibrary(bc.artifact("bc"));
 
   // Include squall project directory
@@ -129,9 +127,6 @@ pub fn build(b: *std.Build) void {
   system.add_defines(storm_test_exe);
 
   storm_test_exe.linkLibrary(storm);
-
-  storm_test_exe.addIncludePath(mem.path("."));
-  storm_test_exe.addIncludePath(b.path("."));
 
   storm_test_exe.addCSourceFiles(.{
     .files = &.{
