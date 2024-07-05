@@ -607,7 +607,6 @@ float SStrToFloat(const char* string) {
         int32_t v24 = 0;
 
         if (v23 < 10) {
-            int32_t v25 = 0;
             int32_t v26 = -1;
             double v31;
 
@@ -615,7 +614,7 @@ float SStrToFloat(const char* string) {
                 string++;
 
                 if (v24 < 20) {
-                    v31 = s_realDigit[0][v25 + v23];
+                    v31 = s_realDigit[v24][v23];
                 } else {
                     v31 = pow(v16, v26) * v23;
                 }
@@ -625,7 +624,6 @@ float SStrToFloat(const char* string) {
                 v23 = *string - '0';
                 v24++;
                 v26--;
-                v25 += 10;
             } while (v23 < 10);
         }
     }

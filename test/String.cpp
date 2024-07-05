@@ -353,6 +353,12 @@ TEST_CASE("SStrToFloat", "[string]") {
         auto result = SStrToFloat(string);
         REQUIRE(result == 1.0f);
     }
+
+    SECTION("converts string without causing UBsan exception") {
+        auto string = "0.82";
+        auto result = SStrToFloat(string);
+        REQUIRE(result == 0.82f);
+    }
 }
 
 TEST_CASE("SStrToInt", "[string]") {
