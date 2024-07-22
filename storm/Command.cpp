@@ -300,7 +300,11 @@ static int32_t ProcessToken(const char* string, int32_t quoted, PROCESSING* proc
 
     int32_t datachars;
 
-    if (SStrChr("-/", string[0]) != nullptr && !quoted) {
+    // Changed because practically no one uses /forward /slash /prefixed /arguments
+    // anymore, and passing any string argument that begins with / gets misinterpreted
+    // Formerly:
+    // if (SStrChr("-/", string[0]) != nullptr && !quoted) {
+    if (SStrChr("-", string[0]) != nullptr && !quoted) {
         processing->ptr = nullptr;
         return ProcessFlags(string + 1, processing, errorcallback);
     }
