@@ -77,12 +77,14 @@ pub fn build(b: *std.Build) void {
   };
 
   const storm_macos_sources = [_][]const u8{
+    "storm/error/unix/Display.cpp",
     "storm/thread/mac/S_Thread.mm",
     "storm/thread/mac/SThreadRunner.mm",
     "storm/thread/mac/Thread.mm"
   };
 
   const storm_linux_sources = [_][]const u8{
+    "storm/error/unix/Display.cpp",
     "storm/thread/linux/S_Thread.cpp",
     "storm/thread/linux/Thread.cpp"
   };

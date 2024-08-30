@@ -1,9 +1,11 @@
 #include "storm/Error.hpp"
+#include "storm/error/Error.cpp"
+
+#include <windows.h>
 
 #include <cstdarg>
 #include <cstdlib>
 #include <string>
-#include <windows.h>
 
 std::string errorf(const char *format, ...) {
     va_list args;
@@ -24,24 +26,6 @@ std::string errorf(const char *format, ...) {
     } else {
         return std::string(buf);
     }
-}
-
-[[noreturn]] void SErrDisplayAppFatal(const char* format, ...) {
-    // Format arguments
-    constexpr size_t size = 1024;
-    char buffer[size] = {0};
-    va_list args;
-    va_start(args, format);
-    vsnprintf(buffer, size, format, args);
-    va_end(args);
-
-    // Print formatted message to debugger
-    OutputDebugString(buffer);
-
-    // Display error to GUI
-    MessageBox(nullptr, buffer, "Fatal error!", MB_ICONERROR);
-
-    exit(EXIT_FAILURE);
 }
 
 int32_t SErrDisplayError(uint32_t errorcode, const char* filename, int32_t linenumber, const char* description, int32_t recoverable, uint32_t exitcode, uint32_t a7) {

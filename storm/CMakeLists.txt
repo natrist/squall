@@ -25,6 +25,7 @@ if(WHOA_SYSTEM_MAC)
     file(GLOB STORM_MAC_SOURCES
         "mac/*.cpp"
         "mac/*.mm"
+        "error/unix/*.cpp"
         "thread/mac/*.cpp"
         "thread/mac/*.mm"
     )
@@ -34,6 +35,7 @@ endif()
 if(WHOA_SYSTEM_LINUX)
     file(GLOB STORM_LINUX_SOURCES
         "linux/*.cpp"
+        "error/unix/*.cpp"
         "thread/linux/*.cpp"
     )
     list(APPEND STORM_SOURCES ${STORM_LINUX_SOURCES})

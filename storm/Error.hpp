@@ -3,33 +3,8 @@
 
 #include <cstdint>
 
-#if defined(WHOA_SYSTEM_WIN)
-#include <WinError.h>
-#endif
-
-#if defined(WHOA_SYSTEM_MAC) || defined(WHOA_SYSTEM_LINUX)
-#define ERROR_SUCCESS           0x0
-#define ERROR_INVALID_PARAMETER 0x57
-#endif
-
-#if defined(NDEBUG)
-#define STORM_ASSERT(x)                          \
-    (void)0
-#else
-#define STORM_ASSERT(x)                          \
-    if (!(x)) {                                  \
-        SErrPrepareAppFatal(__FILE__, __LINE__); \
-        SErrDisplayAppFatal(#x);                 \
-    }                                            \
-    (void)0
-#endif
-
-#define STORM_VALIDATE(x, y, ...)                \
-    if (!(x)) {                                  \
-        SErrSetLastError(y);                     \
-        return __VA_ARGS__;                      \
-    }                                            \
-    (void)0
+#include "storm/error/Macro.hpp"
+#include "storm/error/Codes.hpp"
 
 [[noreturn]] void SErrDisplayAppFatal(const char* format, ...);
 

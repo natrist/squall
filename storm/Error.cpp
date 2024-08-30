@@ -1,67 +1,23 @@
 #include "storm/Error.hpp"
+#include "storm/error/Error.hpp"
+
+#include "storm/Thread.hpp"
+
 #include <cstdarg>
 #include <cstdio>
 #include <cstdlib>
 
-#if defined(WHOA_SYSTEM_WIN)
-#include <Windows.h>
-#endif
-
-static uint32_t s_lasterror = ERROR_SUCCESS;
-
-#if !defined(WHOA_SYSTEM_WIN)
-
 [[noreturn]] void SErrDisplayAppFatal(const char* format, ...) {
+    // Format arguments
+    constexpr size_t size = 1024;
+    char buffer[size] = {0};
     va_list args;
     va_start(args, format);
-    vprintf(format, args);
-    printf("\n");
+    vsnprintf(buffer, size, format, args);
     va_end(args);
 
-    exit(EXIT_FAILURE);
+    SErrDisplayError(STORM_ERROR_APPLICATION_FATAL, s_appFatInfo.filename, s_appFatInfo.linenumber, buffer, 0, 1, 0);
 }
-
-int32_t SErrDisplayError(uint32_t errorcode, const char* filename, int32_t linenumber, const char* description, int32_t recoverable, uint32_t exitcode, uint32_t a7) {
-    // TODO
-
-    printf("\n=========================================================\n");
-
-    if (linenumber == -5) {
-        printf("Exception Raised!\n\n");
-
-        printf(" App:         %s\n", "GenericBlizzardApp");
-
-        if (errorcode != 0x85100000) {
-            printf(" Error Code:  0x%08X\n", errorcode);
-        }
-
-        // TODO output time
-
-        printf(" Error:       %s\n\n", description);
-    } else {
-        printf("Assertion Failed!\n\n");
-
-        printf(" App:         %s\n", "GenericBlizzardApp");
-        printf(" File:        %s\n", filename);
-        printf(" Line:        %d\n", linenumber);
-
-        if (errorcode != 0x85100000) {
-            printf(" Error Code:  0x%08X\n", errorcode);
-        }
-
-        // TODO output time
-
-        printf(" Assertion:   %s\n", description);
-    }
-
-    if (recoverable) {
-        return 1;
-    } else {
-        exit(exitcode);
-    }
-}
-
-#endif
 
 int32_t SErrDisplayErrorFmt(uint32_t errorcode, const char* filename, int32_t linenumber, int32_t recoverable, uint32_t exitcode, const char* format, ...) {
     char buffer[2048];
@@ -76,14 +32,16 @@ int32_t SErrDisplayErrorFmt(uint32_t errorcode, const char* filename, int32_t li
 }
 
 void SErrPrepareAppFatal(const char* filename, int32_t linenumber) {
-    // TODO
+    s_appFatInfo.filename = filename;
+    s_appFatInfo.linenumber = linenumber;
+    s_appFatInfo.threadId = SGetCurrentThreadId();
 }
 
 void SErrSetLastError(uint32_t errorcode) {
     s_lasterror = errorcode;
-    #if defined(WHOA_SYSTEM_WIN)
+#if defined(WHOA_SYSTEM_WIN)
     SetLastError(errorcode);
-    #endif
+#endif
 }
 
 uint32_t SErrGetLastError() {

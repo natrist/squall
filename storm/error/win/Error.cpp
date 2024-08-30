@@ -3,7 +3,7 @@
 #include <cstdarg>
 #include <cstdio>
 #include <cstdlib>
-#include <Windows.h>
+#include <windows.h>
 
 void GetExceptionNameWin32(DWORD dwMessageId, char* lpBuffer, DWORD nSize) {
     switch (dwMessageId) {
