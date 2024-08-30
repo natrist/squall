@@ -4,16 +4,6 @@
 #include <cstdarg>
 #include <cstdlib>
 
-[[noreturn]] void SErrDisplayAppFatal(const char* format, ...) {
-    va_list args;
-    va_start(args, format);
-    vprintf(format, args);
-    printf("\n");
-    va_end(args);
-
-    exit(EXIT_FAILURE);
-}
-
 int32_t SErrDisplayError(uint32_t errorcode, const char* filename, int32_t linenumber, const char* description, int32_t recoverable, uint32_t exitcode, uint32_t a7) {
     // TODO
 
