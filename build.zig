@@ -19,10 +19,7 @@ pub fn build(b: *std.Build) void {
   system.add_defines(storm);
 
   // Get dependencies
-  const mem = b.dependency("mem", .{});
   const bc = b.dependency("bc", .{});
-  // Publicly link mem
-  storm.linkLibrary(mem.artifact("mem"));
   // Link bc
   storm.linkLibrary(bc.artifact("bc"));
 

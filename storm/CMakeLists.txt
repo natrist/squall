@@ -52,10 +52,9 @@ target_include_directories(storm
 
 target_link_libraries(storm
     PUBLIC
-        mem
+        bc
     PRIVATE
         system
-        bc
 )
 
 if(HAS_NO_INVALID_OFFSETOF)
