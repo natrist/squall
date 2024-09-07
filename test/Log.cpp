@@ -21,7 +21,7 @@ TEST_CASE("SLogCreate", "[log]") {
         SLogInitialize();
 
         HSLOG log;
-        REQUIRE(SLogCreate("test.log", SLOG_FLAG_DEFAULT, &log) == 1);
+        REQUIRE(SLogCreate("test.log", STORM_LOG_FLAG_DEFAULT, &log) == 1);
         REQUIRE(log != 0);
 
         SLogDestroy();
@@ -31,7 +31,7 @@ TEST_CASE("SLogCreate", "[log]") {
         SLogInitialize();
 
         HSLOG log;
-        REQUIRE(SLogCreate("test.log", SLOG_FLAG_OPEN_FILE, &log) == 1);
+        REQUIRE(SLogCreate("test.log", STORM_LOG_FLAG_OPEN_FILE, &log) == 1);
         REQUIRE(log != 0);
 
         SLogDestroy();
@@ -42,7 +42,7 @@ TEST_CASE("SLogWrite", "[log]") {
     SLogInitialize();
 
     HSLOG log;
-    REQUIRE(SLogCreate("test.log", SLOG_FLAG_DEFAULT, &log) == 1);
+    REQUIRE(SLogCreate("test.log", STORM_LOG_FLAG_DEFAULT, &log) == 1);
     REQUIRE(log != 0);
 
     SLogWrite(log, "SLogWrite Test");
