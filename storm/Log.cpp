@@ -23,11 +23,9 @@
 #include <sys/syslimits.h>
 #endif
 
-
 #define STORM_LOG_MAX_CHANNELS 4
 #define STORM_LOG_MAX_BUFFER 0x10000
 #define STORM_LOG_FLUSH_POINT 0xC000
-
 
 #if defined(WHOA_SYSTEM_WIN)
 typedef SYSTEMTIME SLOGTIME;
@@ -44,7 +42,6 @@ typedef struct _SLOGTIME {
 } SLOGTIME;
 #endif
 
-
 typedef struct _LOG {
     HSLOG log;
     _LOG* next;
@@ -58,7 +55,6 @@ typedef struct _LOG {
     char buffer[STORM_LOG_MAX_BUFFER];
 } LOG;
 
-
 static SCritSect* s_critsect[STORM_LOG_MAX_CHANNELS] = { nullptr };
 static SCritSect* s_defaultdir_critsect = nullptr;
 
@@ -67,7 +63,6 @@ static HSLOG s_sequence = 0;
 
 static char s_defaultdir[STORM_MAX_PATH] = { '\0' };
 static bool s_logsysteminit = false;
-
 
 static LOG* LockLog(HSLOG log, HLOCKEDLOG* lockedhandle, bool createifnecessary) {
     if (!log) {
@@ -320,7 +315,7 @@ static bool OpenLogFile(const char* filename, FILE** file, uint32_t flags) {
         char newfilename[STORM_MAX_PATH];
         PrependDefaultDir(newfilename, STORM_MAX_PATH, filename);
         CreateFileDirectory(newfilename);
-        *file = fopen(newfilename, (flags & SLOG_FLAG_APPEND) ? "ab" : "wb");
+        *file = fopen(newfilename, (flags & STORM_LOG_FLAG_APPEND) ? "ab" : "wb");
         return (*file != nullptr);
     }
     return false;
@@ -478,12 +473,12 @@ int SLogCreate(const char* filename, uint32_t flags, HSLOG* log) {
 
     *log = 0;
 
-    if (flags & SLOG_FLAG_NO_FILE) {
+    if (flags & STORM_LOG_FLAG_NO_FILE) {
         filename = "";
-        flags &= ~SLOG_FLAG_OPEN_FILE;
+        flags &= ~STORM_LOG_FLAG_OPEN_FILE;
     }
 
-    if ((flags & SLOG_FLAG_OPEN_FILE) == 0 || OpenLogFile(filename, &file, flags)) {
+    if ((flags & STORM_LOG_FLAG_OPEN_FILE) == 0 || OpenLogFile(filename, &file, flags)) {
         s_sequence = reinterpret_cast<HSLOG>(reinterpret_cast<size_t>(s_sequence) + 1);
         *log = s_sequence;
         LOG* result = LockLog(s_sequence, &lockedhandle, true);
