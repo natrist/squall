@@ -401,6 +401,7 @@ static void OutputTime(LOG* logptr, bool show) {
                                 systime.wMilliseconds);
     }
 
+
     if (show) {
         memcpy(&logptr->buffer[logptr->bufferused], timestr, timestrlen);
     } else {

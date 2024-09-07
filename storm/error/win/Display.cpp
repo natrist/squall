@@ -1,5 +1,4 @@
-#include "storm/Error.hpp"
-#include "storm/error/Error.cpp"
+#include "storm/error/Error.hpp"
 
 #include <windows.h>
 

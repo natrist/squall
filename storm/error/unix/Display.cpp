@@ -1,4 +1,4 @@
-#include "storm/Error.hpp"
+#include "storm/error/Error.hpp"
 
 #include <cstdio>
 #include <cstdarg>
