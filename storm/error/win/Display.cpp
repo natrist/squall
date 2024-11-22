@@ -49,18 +49,18 @@ class error_report {
                 this->printf(" App:         %s\n", "GenericBlizzardApp");
 
                 if (errorcode != 0x85100000) {
-                    this->printf(" Error Code:  0x%08X\n", errorcode);
+                    this->printf(" Error Code:  0x%08X\n", this->m_errorcode);
                 }
 
                 // TODO output time
 
-                this->printf(" Error:       %s\n\n", description);
+                this->printf(" Error:       %s\n\n", this->m_description);
             } else {
                 this->printf("Assertion Failed!\n\n");
 
                 this->printf(" App:         %s\n", "GenericBlizzardApp");
-                this->printf(" File:        %s\n", filename);
-                this->printf(" Line:        %d\n", linenumber);
+                this->printf(" File:        %s\n", this->m_filename);
+                this->printf(" Line:        %d\n", this->m_linenumber);
 
                 if (errorcode != 0x85100000) {
                     this->printf(" Error Code:  0x%08X\n", errorcode);
