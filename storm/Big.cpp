@@ -41,7 +41,8 @@ void SBigDec(BigData* a, BigData* b) {
 }
 
 void SBigDel(BigData* num) {
-    delete num;
+    num->~BigData();
+    SMemFree(num);
 }
 
 void SBigDiv(BigData* a, BigData* b, BigData* c) {
