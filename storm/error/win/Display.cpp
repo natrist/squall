@@ -1,76 +1,94 @@
 #include "storm/error/Error.hpp"
+#include "storm/Array.hpp"
 
 #include <windows.h>
 
 #include <cstdarg>
 #include <cstdlib>
+#include <cstdint>
 #include <string>
 
-std::string errorf(const char *format, ...) {
-    va_list args;
-    va_start(args, format);
+class error_report {
+    private:
+        TSGrowableArray<uint8_t> m_text;
+        uint32_t m_errorcode;
+        const char* m_filename;
+        int32_t m_linenumber;
+        const char* m_description;
+        int32_t m_recoverable;
 
-    constexpr size_t size = 1024;
+        void printf(const char *format, ...) {
+            va_list args;
+            va_start(args, format);
 
-    char buf[size] = {0};
-    auto n = vsnprintf(buf, size, format, args);
+            constexpr size_t size = 1024;
+            char buf[size] = {0};
+            auto n = vsnprintf(buf, size, format, args);
 
-    va_end(args);
+            va_end(args);
+            // Remove trailing zero
+            this->m_text.SetCount(this->m_text.Count()-1);
+            // Add formatted bytes plus trailing zero
+            this->m_text.Add(n+1, reinterpret_cast<uint8_t*>(buf));
+        }
+    public:
+        error_report(uint32_t errorcode, const char* filename, int32_t linenumber, const char* description, int32_t recoverable) {
+            this->m_errorcode = errorcode;
+            this->m_filename = filename;
+            this->m_linenumber = linenumber;
+            this->m_description = description;
+            this->m_recoverable = recoverable;
+        }
 
-    if (n < 0) {
-        return "";
-    } else if (n >= size) {
-        std::string result(buf, n);
-        return result;
-    } else {
-        return std::string(buf);
-    }
-}
+        void Format() {
+            this->printf("\n=========================================================\n");
+
+            if (linenumber == -5) {
+                this->printf("Exception Raised!\n\n");
+
+                this->printf(" App:         %s\n", "GenericBlizzardApp");
+
+                if (errorcode != 0x85100000) {
+                    this->printf(" Error Code:  0x%08X\n", errorcode);
+                }
+
+                // TODO output time
+
+                this->printf(" Error:       %s\n\n", description);
+            } else {
+                this->printf("Assertion Failed!\n\n");
+
+                this->printf(" App:         %s\n", "GenericBlizzardApp");
+                this->printf(" File:        %s\n", filename);
+                this->printf(" Line:        %d\n", linenumber);
+
+                if (errorcode != 0x85100000) {
+                    this->printf(" Error Code:  0x%08X\n", errorcode);
+                }
+
+                // TODO output time
+                this->printf(" Assertion:   %s\n", description);
+            }
+        }
+
+        void Display() {
+            // Output text to debugger
+            OutputDebugString(reinterpret_cast<LPCSTR>(this->m_text.Ptr()));
+            // Title
+            const char* caption = recoverable ? "Error" : "Unrecoverable error";
+            // Icon/type
+            UINT icon = this->m_recoverable ? MB_ICONWARNING : MB_ICONERROR;
+            MessageBox(nullptr, reinterpret_cast<LPCSTR>(this->m_text.Ptr()), caption, icon);
+        }
+};
 
 int32_t SErrDisplayError(uint32_t errorcode, const char* filename, int32_t linenumber, const char* description, int32_t recoverable, uint32_t exitcode, uint32_t a7) {
-    std::string s = "";
-    s.reserve(1024);
+    error_report report(errorcode, filename, linenumber, description, recoverable);
 
-    s += errorf("\n=========================================================\n");
-
-    if (linenumber == -5) {
-        s += errorf("Exception Raised!\n\n");
-
-        s += errorf(" App:         %s\n", "GenericBlizzardApp");
-
-        if (errorcode != 0x85100000) {
-            s += errorf(" Error Code:  0x%08X\n", errorcode);
-        }
-
-        // TODO output time
-
-        s += errorf(" Error:       %s\n\n", description);
-    } else {
-        s += errorf("Assertion Failed!\n\n");
-
-        s += errorf(" App:         %s\n", "GenericBlizzardApp");
-        s += errorf(" File:        %s\n", filename);
-        s += errorf(" Line:        %d\n", linenumber);
-
-        if (errorcode != 0x85100000) {
-            s += errorf(" Error Code:  0x%08X\n", errorcode);
-        }
-
-        // TODO output time
-
-        s += errorf(" Assertion:   %s\n", description);
-    }
-
-    // Print error in debugger
-    OutputDebugString(s.c_str());
-
-    // Title
-    const char* caption = recoverable ? "Error" : "Unrecoverable error";
-
-    // Icon/type
-    UINT icon = recoverable ? MB_ICONWARNING : MB_ICONERROR;
-
-    MessageBox(nullptr, s.c_str(), caption, icon);
+    // Format error string and write to debug console
+    report.Format();
+    // Show MessageBox (blocks until user response)
+    report.Display();
 
     if (recoverable) {
         return 1;
