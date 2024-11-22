@@ -21,7 +21,7 @@ const char* s_errorstr[] = {
     "Unable to open response file: %s"
 };
 
-static void GenerateError(CMDERRORCALLBACKFCN errorcallback, uint32_t errorcode, const char* itemstring) {
+static void GenerateError(CMDERRORCALLBACK errorcallback, uint32_t errorcode, const char* itemstring) {
     char errorstr[256] = {0};
     uint32_t strid = 0;
 
@@ -240,7 +240,7 @@ static int32_t ProcessCurrentFlag(const char* string, PROCESSING* processing, in
     return 1;
 }
 
-static int32_t ProcessFlags(const char* string, PROCESSING* processing, CMDERRORCALLBACKFCN errorcallback) {
+static int32_t ProcessFlags(const char* string, PROCESSING* processing, CMDERRORCALLBACK errorcallback) {
     char lastflag[256] = { 0 };
 
     while (string[0] != '\0') {
@@ -291,9 +291,9 @@ static int32_t ProcessFlags(const char* string, PROCESSING* processing, CMDERROR
     return 1;
 }
 
-static int32_t ProcessFile(const char* filename, PROCESSING* processing, CMDDEF** nextarg, CMDEXTRACALLBACKFCN extracallback, CMDERRORCALLBACKFCN errorcallback);
+static int32_t ProcessFile(const char* filename, PROCESSING* processing, CMDDEF** nextarg, CMDEXTRACALLBACK extracallback, CMDERRORCALLBACK errorcallback);
 
-static int32_t ProcessToken(const char* string, int32_t quoted, PROCESSING* processing, CMDDEF** nextarg, CMDEXTRACALLBACKFCN extracallback, CMDERRORCALLBACKFCN errorcallback) {
+static int32_t ProcessToken(const char* string, int32_t quoted, PROCESSING* processing, CMDDEF** nextarg, CMDEXTRACALLBACK extracallback, CMDERRORCALLBACK errorcallback) {
     if (string[0] == '@' && !quoted) {
         return ProcessFile(&string[1], processing, nextarg, extracallback, errorcallback);
     }
@@ -332,7 +332,7 @@ static int32_t ProcessToken(const char* string, int32_t quoted, PROCESSING* proc
     return 0;
 }
 
-static int32_t ProcessString(const char** stringptr, PROCESSING* processing, CMDDEF** nextarg, CMDEXTRACALLBACKFCN extracallback, CMDERRORCALLBACKFCN errorcallback) {
+static int32_t ProcessString(const char** stringptr, PROCESSING* processing, CMDDEF** nextarg, CMDEXTRACALLBACK extracallback, CMDERRORCALLBACK errorcallback) {
     char buffer[256] = {0};
     int32_t quoted = 0;
 
@@ -351,7 +351,7 @@ static int32_t ProcessString(const char** stringptr, PROCESSING* processing, CMD
     return **stringptr == '\0';
 }
 
-static int32_t ProcessFile(const char* filename, PROCESSING* processing, CMDDEF** nextarg, CMDEXTRACALLBACKFCN extracallback, CMDERRORCALLBACKFCN errorcallback) {
+static int32_t ProcessFile(const char* filename, PROCESSING* processing, CMDDEF** nextarg, CMDEXTRACALLBACK extracallback, CMDERRORCALLBACK errorcallback) {
     // TODO
     auto file = OsCreateFile(filename, OS_GENERIC_READ, OS_FILE_SHARE_READ, OS_OPEN_EXISTING, OS_FILE_FLAG_SEQUENTIAL_SCAN, 0);
 
@@ -381,7 +381,7 @@ static int32_t ProcessFile(const char* filename, PROCESSING* processing, CMDDEF*
     return status;
 }
 
-int32_t SCmdRegisterArgument(uint32_t flags, uint32_t id, const char* name, void* variableptr, uint32_t variablebytes, uint32_t setvalue, uint32_t setmask, CMDPARAMSCALLBACKFCN callback) {
+int32_t SCmdRegisterArgument(uint32_t flags, uint32_t id, const char* name, void* variableptr, uint32_t variablebytes, uint32_t setvalue, uint32_t setmask, CMDPARAMSCALLBACK callback) {
     if (name == nullptr) {
         name = "";
     }
@@ -437,7 +437,7 @@ int32_t SCmdRegisterArgList(ARGLIST* listptr, uint32_t numargs) {
     return 1;
 }
 
-int32_t SCmdProcess(const char* cmdline, int32_t skipprogname, CMDEXTRACALLBACKFCN extracallback, CMDERRORCALLBACKFCN errorcallback) {
+int32_t SCmdProcess(const char* cmdline, int32_t skipprogname, CMDEXTRACALLBACK extracallback, CMDERRORCALLBACK errorcallback) {
     STORM_VALIDATE(cmdline, ERROR_INVALID_PARAMETER, 0);
 
     if (skipprogname) {
@@ -470,7 +470,7 @@ int32_t SCmdProcess(const char* cmdline, int32_t skipprogname, CMDEXTRACALLBACKF
     return 1;
 }
 
-int32_t SCmdProcessCommandLine(CMDEXTRACALLBACKFCN extracallback, CMDERRORCALLBACKFCN errorcallback) {
+int32_t SCmdProcessCommandLine(CMDEXTRACALLBACK extracallback, CMDERRORCALLBACK errorcallback) {
     auto cmdline = OsGetCommandLine();
 
     return SCmdProcess(cmdline, 1, extracallback, errorcallback);
