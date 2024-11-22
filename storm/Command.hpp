@@ -5,10 +5,6 @@
 
 #include <cstdint>
 
-#define STORM_COMMAND_ERROR_BAD_ARGUMENT         0x85100065
-#define STORM_COMMAND_ERROR_NOT_ENOUGH_ARGUMENTS 0x8510006D
-#define STORM_COMMAND_ERROR_OPEN_FAILED          0x6E
-
 #define STORM_COMMAND_WHITESPACE_CHARS " ,;\"\t\n\r\x1A"
 
 #define STORM_COMMAND_EXTRA_CASE_SENSITIVE (1 << 8)
@@ -45,17 +41,17 @@ class CMDERROR;
 class CMDPARAMS;
 
 // Callback types
-typedef int32_t (*CMDEXTRACALLBACKFCN)(const char*);
-typedef int32_t (*CMDERRORCALLBACKFCN)(CMDERROR*);
-typedef int32_t (*CMDPARAMSCALLBACKFCN)(CMDPARAMS*, const char*);
+typedef int32_t (*CMDEXTRACALLBACK)(const char*);
+typedef int32_t (*CMDERRORCALLBACK)(CMDERROR*);
+typedef int32_t (*CMDPARAMSCALLBACK)(CMDPARAMS*, const char*);
 
 // Details a command line argument
 class ARGLIST {
     public:
-        uint32_t             flags;
-        uint32_t             id;
-        const char*          name;
-        CMDPARAMSCALLBACKFCN callback;
+        uint32_t          flags;
+        uint32_t          id;
+        const char*       name;
+        CMDPARAMSCALLBACK callback;
 };
 
 // Parameters passed to argument callback
@@ -78,19 +74,19 @@ class CMDPARAMS {
 // Command definitions
 class CMDDEF : public TSLinkedNode<CMDDEF> {
     public:
-        uint32_t             flags;
-        uint32_t             id;
-        char                 name[16];
-        int32_t              namelength;
-        uint32_t             setvalue;
-        uint32_t             setmask;
-        void*                variableptr;
-        uint32_t             variablebytes;
-        CMDPARAMSCALLBACKFCN callback;
-        int32_t              found;
+        uint32_t          flags;
+        uint32_t          id;
+        char              name[16];
+        int32_t           namelength;
+        uint32_t          setvalue;
+        uint32_t          setmask;
+        void*             variableptr;
+        uint32_t          variablebytes;
+        CMDPARAMSCALLBACK callback;
+        int32_t           found;
         union {
-            uint32_t         currvalue;
-            char*            currvaluestr;
+            uint32_t      currvalue;
+            char*         currvaluestr;
         };
 };
 

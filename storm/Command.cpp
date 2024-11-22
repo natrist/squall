@@ -395,15 +395,13 @@ int32_t SCmdRegisterArgument(uint32_t flags, uint32_t id, const char* name, void
     STORM_VALIDATE((STORM_COMMAND_GET_TYPE(flags) != STORM_COMMAND_TYPE_BOOL) || (!variableptr) || (variablebytes == sizeof(uint32_t)), ERROR_INVALID_PARAMETER, 0);
 
     // If argument is flagged, it goes in the flag list
-    auto& cmdlist = s_arglist;
+    auto listptr = &s_arglist;
     if (STORM_COMMAND_GET_ARG(flags) == STORM_COMMAND_ARG_FLAGGED) {
-        cmdlist = s_flaglist;
+        listptr = &s_flaglist;
     }
-
-    auto cmd = cmdlist.NewNode(2, 0, 0);
+    auto cmd = listptr->NewNode(2, 0, 0);
 
     SStrCopy(cmd->name, name, sizeof(cmd->name));
-
     cmd->id = id;
     cmd->namelength = namelength;
     cmd->variableptr = variableptr;
@@ -412,7 +410,6 @@ int32_t SCmdRegisterArgument(uint32_t flags, uint32_t id, const char* name, void
     cmd->setvalue = setvalue;
     cmd->setmask = setmask;
     cmd->callback = callback;
-
     if ((STORM_COMMAND_GET_TYPE(flags) == STORM_COMMAND_TYPE_BOOL) && (STORM_COMMAND_GET_BOOL(flags) == STORM_COMMAND_BOOL_CLEAR)) {
         cmd->currvalue = setvalue;
     } else {
