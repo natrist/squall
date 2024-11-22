@@ -1,6 +1,7 @@
 #include "storm/Big.hpp"
 #include "storm/big/Ops.hpp"
 #include "test/Test.hpp"
+#include "test/big/BigDataTest.hpp"
 #include <vector>
 
 TEST_CASE("Add", "[big]") {
@@ -115,7 +116,7 @@ TEST_CASE("Compare", "[big]") {
 
     SECTION("compares 0x11111111 and 0x2222222222222222") {
         SBigFromUnsigned(a, 0x11111111);
-        
+
         uint64_t data = 0x2222222222222222;
         SBigFromBinary(b, reinterpret_cast<uint8_t*>(&data), sizeof(data));
 
@@ -690,7 +691,7 @@ TEST_CASE("SetOne", "[big]") {
 
 TEST_CASE("SetZero", "[big]") {
     BigDataTest num;
-    
+
     SECTION("sets buffer to zero") {
         SBigFromUnsigned(num, 0x12345678);
 

@@ -1,5 +1,6 @@
 #include "storm/Big.hpp"
 #include "test/Test.hpp"
+#include "test/big/BigDataTest.hpp"
 #include <string>
 
 TEST_CASE("SBigAdd", "[big]") {
@@ -570,7 +571,7 @@ TEST_CASE("SBigNot", "[big]") {
 
     SECTION("bitwise negates huge value") {
         uint32_t data[] = { 0xF00DFEED, 0xBA1D, 0xBEEBBEEB, 0x12345678, 0x9ABCDEF, 0xDEADCAD, 0xD011A };
-        
+
         SBigFromBinary(b, data, sizeof(data));
         SBigNot(a, b);
 
