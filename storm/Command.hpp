@@ -104,13 +104,13 @@ class PROCESSING {
         int32_t namelength;
 };
 
-int32_t  SCmdRegisterArgument(uint32_t flags, uint32_t id, const char* name, void* variableptr, uint32_t variablebytes, uint32_t setvalue, uint32_t setmask, CMDPARAMSCALLBACKFCN callback);
+int32_t  SCmdRegisterArgument(uint32_t flags, uint32_t id, const char* name, void* variableptr, uint32_t variablebytes, uint32_t setvalue, uint32_t setmask, CMDPARAMSCALLBACK callback);
 
 int32_t  SCmdRegisterArgList(ARGLIST* listptr, uint32_t numargs);
 
-int32_t  SCmdProcessCommandLine(CMDEXTRACALLBACKFCN extracallback, CMDERRORCALLBACKFCN errorcallback);
+int32_t  SCmdProcessCommandLine(CMDEXTRACALLBACK extracallback, CMDERRORCALLBACK errorcallback);
 
-int32_t  SCmdProcess(const char* cmdline, int32_t skipprogname, CMDEXTRACALLBACKFCN extracallback, CMDERRORCALLBACKFCN errorcallback);
+int32_t  SCmdProcess(const char* cmdline, int32_t skipprogname, CMDEXTRACALLBACK extracallback, CMDERRORCALLBACK errorcallback);
 
 uint32_t SCmdGetNum(uint32_t id);
 
