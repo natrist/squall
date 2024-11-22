@@ -43,12 +43,12 @@ class error_report {
         void Format() {
             this->printf("\n=========================================================\n");
 
-            if (linenumber == -5) {
+            if (this->m_linenumber == -5) {
                 this->printf("Exception Raised!\n\n");
 
                 this->printf(" App:         %s\n", "GenericBlizzardApp");
 
-                if (errorcode != 0x85100000) {
+                if (this->m_errorcode != 0x85100000) {
                     this->printf(" Error Code:  0x%08X\n", this->m_errorcode);
                 }
 
@@ -62,12 +62,12 @@ class error_report {
                 this->printf(" File:        %s\n", this->m_filename);
                 this->printf(" Line:        %d\n", this->m_linenumber);
 
-                if (errorcode != 0x85100000) {
-                    this->printf(" Error Code:  0x%08X\n", errorcode);
+                if (this->m_errorcode != 0x85100000) {
+                    this->printf(" Error Code:  0x%08X\n", this->m_errorcode);
                 }
 
                 // TODO output time
-                this->printf(" Assertion:   %s\n", description);
+                this->printf(" Assertion:   %s\n", this->m_description);
             }
         }
 
