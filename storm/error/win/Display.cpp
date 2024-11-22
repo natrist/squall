@@ -75,7 +75,7 @@ class error_report {
             // Output text to debugger
             OutputDebugString(reinterpret_cast<LPCSTR>(this->m_text.Ptr()));
             // Title
-            const char* caption = recoverable ? "Error" : "Unrecoverable error";
+            const char* caption = this->m_recoverable ? "Error" : "Unrecoverable error";
             // Icon/type
             UINT icon = this->m_recoverable ? MB_ICONWARNING : MB_ICONERROR;
             MessageBox(nullptr, reinterpret_cast<LPCSTR>(this->m_text.Ptr()), caption, icon);
