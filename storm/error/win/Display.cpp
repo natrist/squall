@@ -18,14 +18,14 @@ class error_report {
         int32_t m_recoverable;
 
         void printf(const char *format, ...) {
-            va_list args;
-            va_start(args, format);
-
             constexpr size_t size = 1024;
             char buf[size] = {0};
-            auto n = vsnprintf(buf, size, format, args);
 
+            va_list args;
+            va_start(args, format);
+            auto n = vsnprintf(buf, size, format, args);
             va_end(args);
+
             // Remove trailing zero
             this->m_text.SetCount(this->m_text.Count()-1);
             // Add formatted bytes plus trailing zero
