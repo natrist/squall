@@ -38,6 +38,8 @@ class error_report {
             this->m_linenumber = linenumber;
             this->m_description = description;
             this->m_recoverable = recoverable;
+            this->m_text.SetCount(1);
+            this->m_text[0] = '\0';
         }
 
         void Format() {
@@ -85,7 +87,7 @@ class error_report {
 int32_t SErrDisplayError(uint32_t errorcode, const char* filename, int32_t linenumber, const char* description, int32_t recoverable, uint32_t exitcode, uint32_t a7) {
     error_report report(errorcode, filename, linenumber, description, recoverable);
 
-    // Format error string and write to debug console
+    // Format error message
     report.Format();
     // Show MessageBox (blocks until user response)
     report.Display();
