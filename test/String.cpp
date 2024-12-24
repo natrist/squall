@@ -405,6 +405,56 @@ TEST_CASE("SStrToInt", "[string]") {
     }
 }
 
+TEST_CASE("SStrToUnsigned", "[string]") {
+    SECTION("converts empty string to unsigned") {
+        auto string = "";
+        auto result = SStrToUnsigned(string);
+        REQUIRE(result == 0);
+    }
+
+    SECTION("converts whitespace string to unsigned") {
+        auto string = " ";
+        auto result = SStrToUnsigned(string);
+        REQUIRE(result == 0);
+    }
+
+    SECTION("converts string with positive number to unsigned") {
+        auto string = "123";
+        auto result = SStrToUnsigned(string);
+        REQUIRE(result == 123);
+    }
+
+    SECTION("converts string with negative number to unsigned") {
+        auto string = "-123";
+        auto result = SStrToUnsigned(string);
+        REQUIRE(result == 0);
+    }
+
+    SECTION("converts string with zero to unsigned") {
+        auto string = "0";
+        auto result = SStrToUnsigned(string);
+        REQUIRE(result == 0);
+    }
+
+    SECTION("converts string with leading zero to unsigned") {
+        auto string = "01";
+        auto result = SStrToUnsigned(string);
+        REQUIRE(result == 1);
+    }
+
+    SECTION("converts string with two whitespace-separated numbers to unsigned") {
+        auto string = "123 456";
+        auto result = SStrToUnsigned(string);
+        REQUIRE(result == 123);
+    }
+
+    SECTION("converts string to max unsigned value") {
+        auto string = "4294967295";
+        auto result = SStrToUnsigned(string);
+        REQUIRE(result == 0xFFFFFFFF);
+    }
+}
+
 TEST_CASE("SStrUpper", "[string]") {
     SECTION("rewrites lowercase string to uppercase correctly") {
         auto lower = "foobar";
