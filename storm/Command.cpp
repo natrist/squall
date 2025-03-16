@@ -363,21 +363,16 @@ static int32_t ProcessFile(const char* filename, PROCESSING* processing, CMDDEF*
     }
 
     auto size = OsGetFileSize(file);
-
     auto buffer = reinterpret_cast<char*>(SMemAlloc(size + 1, __FILE__, __LINE__, 0));
-
-    size_t bytesread = 0;
+    int32_t bytesread;
     OsReadFile(file, buffer, size, &bytesread);
-
     OsCloseFile(file);
-
     buffer[bytesread] = '\0';
 
     const char* curr = buffer;
     auto status = ProcessString(&curr, processing, nextarg, extracallback, errorcallback);
 
     SMemFree(buffer, __FILE__, __LINE__, 0);
-
     return status;
 }
 
