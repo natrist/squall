@@ -105,7 +105,7 @@ int32_t SRegLoadString(const char* keyname, const char* valuename, uint32_t flag
 
     @autoreleasepool {
         id string = GetObject(keyname, valuename, flags);
-        if ([string isKindOfClass:[NSString class]) {
+        if ([string isKindOfClass:[NSString class]]) {
             return [string getCString buffer:buffer maxLength:buffersize encoding:NSUTF8StringEncoding];
         }
     }
