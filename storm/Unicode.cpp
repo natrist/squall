@@ -262,7 +262,6 @@ done:
     }
     return result;
 }
-#include <cstdio>
 
 int32_t SUniConvertUTF8to16(uint16_t* dst, uint32_t dstmaxchars, const uint8_t* src, uint32_t srcmaxchars, uint32_t* dstchars, uint32_t* srcchars) {
     auto srcend   = srcmaxchars == STORM_MAX_STR ? reinterpret_cast<const uint8_t*>(UINTPTR_MAX) : src + srcmaxchars;
@@ -322,8 +321,6 @@ int32_t SUniConvertUTF8to16(uint16_t* dst, uint32_t dstmaxchars, const uint8_t* 
 
         src += width;
     }
-
-    printf("fail yure %p %p\n", src, srcend);
 
     result = -1;
 
