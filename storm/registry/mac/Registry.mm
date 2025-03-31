@@ -50,7 +50,7 @@ bool GetDefaultsAndKeyPath(const char* key, const char* name, uint32_t flags, NS
 
     if (name && *name) {
         if (key && *key) {
-            length = SStrPrintf(path, size, "%s/%s", key, name);
+            length = SStrPrintf(path, size, "%s/%s", nextcomponent, name);
         } else {
             length = SStrCopy(path, name, size);
         }
@@ -84,7 +84,7 @@ id GetObject(const char* keyname, const char* valuename, uint32_t flags) {
 }
 
 bool SetObject(const char* key, const char* name, uint32_t flags, NSObject* object) {
-    NSUserDefaults* defaults
+    NSUserDefaults* defaults;
     char path[STORM_MAX_PATH];
     if (!GetDefaultsAndKeyPath(keyname, valuename, flags, &defaults, path, STORM_MAX_PATH)) {
         return false;
