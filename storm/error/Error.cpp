@@ -1,5 +1,4 @@
 #include "storm/error/Error.hpp"
-#include "storm/error/Codes.hpp"
 #include "storm/error/Types.hpp"
 #include "storm/Thread.hpp"
 

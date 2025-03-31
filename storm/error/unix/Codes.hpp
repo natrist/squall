@@ -1,7 +1,0 @@
-#ifndef STORM_ERROR_UNIX_CODES_HPP
-#define STORM_ERROR_UNIX_CODES_HPP
-
-#define ERROR_INVALID_PARAMETER 0x57
-#define ERROR_SUCCESS           0x0
-
-#endif

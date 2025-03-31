@@ -7,6 +7,7 @@ file(GLOB STORM_SOURCES
     "crypto/*.cpp"
     "error/*.cpp"
     "hash/*.cpp"
+    "option*/*.cpp"
     "queue/*.cpp"
     "string/*.cpp"
     "thread/*.cpp"
@@ -17,6 +18,7 @@ if(WHOA_SYSTEM_WIN)
         "win/*.cpp"
         "error/win/*.cpp"
         "thread/win/*.cpp"
+        "registry/win/*.cpp"
     )
     list(APPEND STORM_SOURCES ${STORM_WIN_SOURCES})
 endif()
@@ -28,6 +30,7 @@ if(WHOA_SYSTEM_MAC)
         "error/unix/*.cpp"
         "thread/mac/*.cpp"
         "thread/mac/*.mm"
+        "registry/mac/*.mm"
     )
     list(APPEND STORM_SOURCES ${STORM_MAC_SOURCES})
 endif()
@@ -37,6 +40,7 @@ if(WHOA_SYSTEM_LINUX)
         "linux/*.cpp"
         "error/unix/*.cpp"
         "thread/linux/*.cpp"
+        "registry/linux/*.cpp"
     )
     list(APPEND STORM_SOURCES ${STORM_LINUX_SOURCES})
 endif()

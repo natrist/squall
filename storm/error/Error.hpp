@@ -3,8 +3,7 @@
 
 #include <cstdint>
 
-#include "storm/error/Macro.hpp"
-#include "storm/error/Codes.hpp"
+#include "storm/error/Defines.hpp"
 
 [[noreturn]] void SErrDisplayAppFatal(const char* format, ...);
 
