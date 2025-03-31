@@ -106,7 +106,7 @@ int32_t SRegLoadString(const char* keyname, const char* valuename, uint32_t flag
     @autoreleasepool {
         id string = GetObject(keyname, valuename, flags);
         if ([string isKindOfClass:[NSString class]]) {
-            return [string getCString buffer:buffer maxLength:buffersize encoding:NSUTF8StringEncoding];
+            return [string getCString buffer maxLength:buffersize encoding:NSUTF8StringEncoding];
         }
     }
 
@@ -124,7 +124,7 @@ int32_t SRegLoadValue(const char* keyname, const char* valuename, uint32_t flags
 
     @autoreleasepool {
         id num = GetObject(keyname, valuename, flags);
-        if ([num isKindOfClass:[NSNumber class]) {
+        if ([num isKindOfClass:[NSNumber class]]) {
             *value = [num unsignedIntValue];
             return 1;
         }
