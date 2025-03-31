@@ -69,7 +69,7 @@ bool GetDefaultsAndKeyPath(const char* key, const char* name, uint32_t flags, NS
         }
     }
 
-    return false;
+    return true;
 }
 
 id GetObject(const char* keyname, const char* valuename, uint32_t flags) {
