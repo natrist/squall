@@ -5,7 +5,7 @@
 void SARC4PrepareKey(const void* data, uint32_t len, SARC4Key* key) {
     STORM_VALIDATE_BEGIN;
     STORM_VALIDATE(data);
-    STORM_VALIDATE_END;
+    STORM_VALIDATE_END_VOID;
 
     key->x = 0;
     key->y = 0;
