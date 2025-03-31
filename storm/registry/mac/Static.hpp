@@ -7,7 +7,7 @@ class SRegStatic {
 public:
     NSMutableDictionary<NSString*, NSUserDefaults*>* hives;
 
-    static SRegStatic Get();
+    static SRegStatic* Get();
 
     SRegStatic();
     ~SRegStatic();
