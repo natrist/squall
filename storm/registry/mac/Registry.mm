@@ -143,7 +143,7 @@ int32_t SRegSaveString(const char* keyname, const char* valuename, uint32_t flag
     STORM_VALIDATE_END;
 
     @autoreleasepool {
-        return SetObject(keyname, valuename, flags, [NSString stringWithUTF8String:value]);
+        return SetObject(keyname, valuename, flags, [NSString stringWithUTF8String:string]);
     }
 }
 
