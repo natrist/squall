@@ -159,3 +159,6 @@ int32_t SRegSaveValue(const char* keyname, const char* valuename, uint32_t flags
         return SetObject(keyname, valuename, flags, [NSNumber numberWithUnsignedInt:value]);
     }
 }
+
+void SRegDestroy() {
+}
