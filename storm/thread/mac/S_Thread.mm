@@ -1,5 +1,5 @@
 #include "storm/thread/S_Thread.hpp"
-#include "storm/Memory.hpp"
+#include <bc/Memory.hpp>
 
 uint32_t S_Thread::s_SLaunchThread(void* threadParam) {
     // TODO

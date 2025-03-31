@@ -1,7 +1,7 @@
 #ifndef STORM_LIST_TS_LIST_HPP
 #define STORM_LIST_TS_LIST_HPP
 
-#include "storm/Memory.hpp"
+#include <bc/Memory.hpp>
 #include "storm/list/TSGetLink.hpp"
 #include "storm/list/TSLink.hpp"
 #include <cstddef>

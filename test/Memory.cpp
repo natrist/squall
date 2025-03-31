@@ -1,4 +1,4 @@
-#include "storm/Memory.hpp"
+#include <bc/Memory.hpp>
 #include "test/Test.hpp"
 
 TEST_CASE("SMemAlloc", "[memory]") {

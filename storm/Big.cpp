@@ -1,6 +1,6 @@
 #include "storm/Big.hpp"
 #include "storm/big/Ops.hpp"
-#include "storm/Memory.hpp"
+#include <bc/Memory.hpp>
 #include <cstring>
 
 void SBigAdd(BigData* a, BigData* b, BigData* c) {

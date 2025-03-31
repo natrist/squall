@@ -2,10 +2,10 @@
 #define STORM_ARRAY_TS_GROWABLE_ARRAY_HPP
 
 #include "storm/array/TSFixedArray.hpp"
+#include <bc/Memory.hpp>
 #include <algorithm>
 #include <cstdint>
 #include <cstring>
-#include <new>
 
 template <class T>
 class TSGrowableArray : public TSFixedArray<T> {

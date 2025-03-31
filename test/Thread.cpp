@@ -1,5 +1,5 @@
 #include "storm/Thread.hpp"
-#include "storm/Memory.hpp"
+#include <bc/Memory.hpp>
 #include "test/Test.hpp"
 
 uint32_t threadProc(void* param) {

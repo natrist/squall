@@ -1,7 +1,7 @@
 #include "storm/Log.hpp"
 #include "storm/Thread.hpp"
 #include "storm/Error.hpp"
-#include "storm/Memory.hpp"
+#include <bc/Memory.hpp>
 #include <cstdio>
 #include <cstdlib>
 #include <ctime>

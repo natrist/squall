@@ -1,9 +1,9 @@
 #ifndef STORM_ARRAY_TS_FIXED_ARRAY_HPP
 #define STORM_ARRAY_TS_FIXED_ARRAY_HPP
 
-#include "storm/Memory.hpp"
-#include "storm/array/TSBaseArray.hpp"
+#include <bc/Memory.hpp>
 #include <cstdint>
+#include "storm/array/TSBaseArray.hpp"
 
 template <class T>
 class TSFixedArray : public TSBaseArray<T> {

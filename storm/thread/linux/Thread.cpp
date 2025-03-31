@@ -1,5 +1,5 @@
 #include "storm/Thread.hpp"
-#include "storm/Memory.hpp"
+#include <bc/Memory.hpp>
 #include "storm/String.hpp"
 #include "storm/thread/S_Thread.hpp"
 #include <cstdio>

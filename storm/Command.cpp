@@ -1,8 +1,10 @@
 #include "storm/Command.hpp"
+#include "bc/os/file/Types.hpp"
 #include "storm/Error.hpp"
 #include "storm/String.hpp"
 
-#include "storm/Memory.hpp"
+#include <bc/Memory.hpp>
+#include "storm/error/Defines.hpp"
 
 #include <bc/os/File.hpp>
 #include <bc/os/CommandLine.hpp>
@@ -32,7 +34,7 @@ static void GenerateError(CMDERRORCALLBACK errorcallback, uint32_t errorcode, co
     case STORM_COMMAND_ERROR_NOT_ENOUGH_ARGUMENTS:
         strid = 1;
         break;
-    case STORM_COMMAND_ERROR_OPEN_FAILED:
+    case ERROR_OPEN_FAILED:
         strid = 2;
         break;
     default:
@@ -325,7 +327,7 @@ static int32_t ProcessToken(const char* string, int32_t quoted, PROCESSING* proc
         }
 
         if (errorcallback) {
-            GenerateError(errorcallback, STORM_COMMAND_ERROR_OPEN_FAILED, string);
+            GenerateError(errorcallback, ERROR_OPEN_FAILED, string);
         }
     }
 
@@ -354,10 +356,9 @@ static int32_t ProcessString(const char** stringptr, PROCESSING* processing, CMD
 static int32_t ProcessFile(const char* filename, PROCESSING* processing, CMDDEF** nextarg, CMDEXTRACALLBACK extracallback, CMDERRORCALLBACK errorcallback) {
     // TODO
     auto file = OsCreateFile(filename, OS_GENERIC_READ, OS_FILE_SHARE_READ, OS_OPEN_EXISTING, OS_FILE_FLAG_SEQUENTIAL_SCAN, 0);
-
-    if (!file) {
+    if (file == HOSFILE_INVALID) {
         if (errorcallback) {
-            GenerateError(errorcallback, STORM_COMMAND_ERROR_OPEN_FAILED, filename);
+            GenerateError(errorcallback, ERROR_OPEN_FAILED, filename);
         }
         return false;
     }
@@ -383,11 +384,13 @@ int32_t SCmdRegisterArgument(uint32_t flags, uint32_t id, const char* name, void
 
     auto namelength = SStrLen(name);
 
-    STORM_VALIDATE(namelength < 16, ERROR_INVALID_PARAMETER, 0);
-    STORM_VALIDATE((!variablebytes) || variableptr, ERROR_INVALID_PARAMETER, 0);
-    STORM_VALIDATE(((STORM_COMMAND_GET_ARG(flags) != STORM_COMMAND_ARG_REQUIRED) || !s_addedoptional), ERROR_INVALID_PARAMETER, 0);
-    STORM_VALIDATE((STORM_COMMAND_GET_ARG(flags) != STORM_COMMAND_ARG_FLAGGED) || (namelength > 0), ERROR_INVALID_PARAMETER, 0);
-    STORM_VALIDATE((STORM_COMMAND_GET_TYPE(flags) != STORM_COMMAND_TYPE_BOOL) || (!variableptr) || (variablebytes == sizeof(uint32_t)), ERROR_INVALID_PARAMETER, 0);
+    STORM_VALIDATE_BEGIN;
+    STORM_VALIDATE(namelength < 16);
+    STORM_VALIDATE((!variablebytes) || variableptr);
+    STORM_VALIDATE((STORM_COMMAND_GET_ARG(flags) != STORM_COMMAND_ARG_REQUIRED) || !s_addedoptional);
+    STORM_VALIDATE((STORM_COMMAND_GET_ARG(flags) != STORM_COMMAND_ARG_FLAGGED) || (namelength > 0));
+    STORM_VALIDATE((STORM_COMMAND_GET_TYPE(flags) != STORM_COMMAND_TYPE_BOOL) || (!variableptr) || (variablebytes == sizeof(uint32_t)));
+    STORM_VALIDATE_END;
 
     // If argument is flagged, it goes in the flag list
     auto listptr = &s_arglist;
@@ -419,7 +422,9 @@ int32_t SCmdRegisterArgument(uint32_t flags, uint32_t id, const char* name, void
 }
 
 int32_t SCmdRegisterArgList(ARGLIST* listptr, uint32_t numargs) {
-    STORM_VALIDATE(listptr, ERROR_INVALID_PARAMETER, 0);
+    STORM_VALIDATE_BEGIN;
+    STORM_VALIDATE(listptr);
+    STORM_VALIDATE_END;
 
     for (int32_t i = 0; i < numargs; i++) {
         if (!SCmdRegisterArgument(listptr->flags, listptr->id, listptr->name, 0, 0, 1, 0xFFFFFFFF, listptr->callback)) {
@@ -433,7 +438,9 @@ int32_t SCmdRegisterArgList(ARGLIST* listptr, uint32_t numargs) {
 }
 
 int32_t SCmdProcess(const char* cmdline, int32_t skipprogname, CMDEXTRACALLBACK extracallback, CMDERRORCALLBACK errorcallback) {
-    STORM_VALIDATE(cmdline, ERROR_INVALID_PARAMETER, 0);
+    STORM_VALIDATE_BEGIN;
+    STORM_VALIDATE(cmdline);
+    STORM_VALIDATE_END;
 
     if (skipprogname) {
         SStrTokenize(&cmdline, nullptr, 0, STORM_COMMAND_WHITESPACE_CHARS, nullptr);
@@ -490,12 +497,12 @@ int32_t SCmdGetBool(uint32_t id) {
 }
 
 int32_t SCmdGetString(uint32_t id, char* buffer, uint32_t bufferchars) {
-    if (buffer) {
-        *buffer = '\0';
-    }
+    STORM_VALIDATE_BEGIN;
+    STORM_VALIDATE(buffer);
+    STORM_VALIDATE(bufferchars);
+    STORM_VALIDATE_END;
 
-    STORM_VALIDATE(buffer, ERROR_INVALID_PARAMETER, 0);
-    STORM_VALIDATE(bufferchars, ERROR_INVALID_PARAMETER, 0);
+    *buffer = '\0';
 
     for (int32_t flaglist = 0; flaglist <= 1; flaglist++) {
         auto& list = flaglist ? s_flaglist : s_arglist;

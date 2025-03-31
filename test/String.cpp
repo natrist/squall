@@ -1,5 +1,5 @@
 #include "storm/String.hpp"
-#include "storm/Memory.hpp"
+#include <bc/Memory.hpp>
 #include "test/Test.hpp"
 
 TEST_CASE("SStrChr", "[string]") {

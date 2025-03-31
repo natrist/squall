@@ -1,5 +1,6 @@
+
+#include <bc/Memory.hpp>
 #include "storm/hash/Hashkey.hpp"
-#include "storm/Memory.hpp"
 #include "storm/String.hpp"
 
 bool HASHKEY_NONE::operator==(const HASHKEY_NONE& key) {
