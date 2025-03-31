@@ -83,7 +83,7 @@ id GetObject(const char* keyname, const char* valuename, uint32_t flags) {
     return [defaults objectForKey: string];
 }
 
-bool SetObject(const char* key, const char* name, uint32_t flags, NSObject* object) {
+bool SetObject(const char* keyname, const char* valuename, uint32_t flags, NSObject* object) {
     NSUserDefaults* defaults;
     char path[STORM_MAX_PATH];
     if (!GetDefaultsAndKeyPath(keyname, valuename, flags, &defaults, path, STORM_MAX_PATH)) {
