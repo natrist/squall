@@ -488,8 +488,7 @@ void SStrTokenize(const char** string, char* buffer, size_t bufferchars, const c
     STORM_VALIDATE(*string);
     STORM_VALIDATE(buffer || !bufferchars);
     STORM_VALIDATE(whitespace);
-    STORM_VALIDATE_END;
-
+    STORM_VALIDATE_END_VOID;
 
     int32_t inquotes = 0;
     int32_t usedquotes = 0;
