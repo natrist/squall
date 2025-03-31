@@ -1,6 +1,6 @@
 #include "storm/registry/mac/Static.hpp"
 
-static SRegStatic* SRegStatic::Get() {
+SRegStatic* SRegStatic::Get() {
     static SRegStatic sregstatic;
     return &sregstatic;
 }

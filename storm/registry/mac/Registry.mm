@@ -18,7 +18,7 @@ bool GetDefaultsAndKeyPath(const char* key, const char* name, uint32_t flags, NS
     STORM_ASSERT(key);
     STORM_ASSERT(*key);
 
-    id nextcomponent = NextComponent(key, path, size);
+    auto nextcomponent = NextComponent(key, path, size);
 
     id prefix = @"com.blizzard";
     if ((flags & STORM_REGISTRY_BATTLENET)) {
@@ -31,7 +31,7 @@ bool GetDefaultsAndKeyPath(const char* key, const char* name, uint32_t flags, NS
         domain = prefix;
     }
 
-    id sregstatic = SRegStatic::Get();
+    auto sregstatic = SRegStatic::Get();
     id hive = sregstatic->hives[domain];
     *defaults = hive;
 
@@ -62,7 +62,7 @@ bool GetDefaultsAndKeyPath(const char* key, const char* name, uint32_t flags, NS
     STORM_VALIDATE(length < size);
     STORM_VALIDATE_END;
 
-    for (id sep = path; ; *sep = '/') {
+    for (auto sep = path; ; *sep = '/') {
         sep = SStrChr(sep, '\\');
         if (!sep) {
             break;
@@ -72,7 +72,7 @@ bool GetDefaultsAndKeyPath(const char* key, const char* name, uint32_t flags, NS
     return false;
 }
 
-NSObject* GetObject(const char* keyname, const char* valuename, uint32_t flags) {
+id GetObject(const char* keyname, const char* valuename, uint32_t flags) {
     NSUserDefaults* defaults;
     char path[STORM_MAX_PATH];
     if (!GetDefaultsAndKeyPath(keyname, valuename, flags, &defaults, path, STORM_MAX_PATH)) {

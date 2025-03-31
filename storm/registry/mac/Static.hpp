@@ -9,13 +9,8 @@ public:
 
     static SRegStatic Get();
 
-    SRegStatic() {
-        this->hives = [NSMutableDictionary init];
-    }
-
-    ~SRegStatic() {
-        this->hives = nil;
-    }
+    SRegStatic();
+    ~SRegStatic();
 };
 
 #endif
