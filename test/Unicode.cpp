@@ -96,3 +96,41 @@ TEST_CASE("SUniConvertUTF8to16", "[unicode]") {
         REQUIRE(widechars[2] == 0x0000);
     }
 }
+
+TEST_CASE("SUniConvertUTF8to16Len", "[unicode]") {
+    SECTION("fail with the correct result") {
+        uint8_t chars[] = { 0xE6, 0xB1, 0x89, 0xE5, 0xAD, 0x97, 0x00 };
+        uint32_t srcchars;
+
+        int32_t result;
+
+        result = SUniConvertUTF8to16Len(chars, 2, &srcchars);
+        REQUIRE(result == -3);
+        REQUIRE(srcchars == 0);
+
+        result = SUniConvertUTF8to16Len(chars, 3, &srcchars);
+        REQUIRE(result == -1);
+        REQUIRE(srcchars == 3);
+
+        result = SUniConvertUTF8to16Len(chars, 4, &srcchars);
+        REQUIRE(result == -3);
+        REQUIRE(srcchars == 3);
+
+        result = SUniConvertUTF8to16Len(chars, 5, &srcchars);
+        REQUIRE(result == -3);
+        REQUIRE(srcchars == 3);
+
+        result = SUniConvertUTF8to16Len(chars, 6, &srcchars);
+        REQUIRE(result == -1);
+        REQUIRE(srcchars == 6);
+    }
+
+    SECTION("get length correctly") {
+        uint8_t chars[] = { 0xE6, 0xB1, 0x89, 0xE5, 0xAD, 0x97, 0x00 };
+        uint32_t srcchars;
+
+        auto result = SUniConvertUTF8to16Len(chars, 7, &srcchars);
+        REQUIRE(result == 3);
+        REQUIRE(srcchars == 7);
+    }
+}

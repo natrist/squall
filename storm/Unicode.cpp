@@ -334,3 +334,125 @@ done:
     }
     return result;
 }
+
+int32_t SUniConvertUTF16to8Len(const uint16_t* src, uint32_t srcmaxchars, uint32_t* srcchars) {
+    if (!srcmaxchars || !src) {
+        if (srcchars) {
+            *srcchars = 0;
+        }
+        return -1;
+    }
+
+    auto srcend   = srcmaxchars == STORM_MAX_STR ? reinterpret_cast<const uint16_t*>(UINTPTR_MAX) : &src[srcmaxchars];
+    auto srcstart = src;
+
+    int32_t result;
+
+    while (src < srcend) {
+        auto grapheme = static_cast<uint32_t>(src[0]);
+        if (0xD7FF < grapheme && grapheme < 0xDC00) {
+            if (src + 1 >= srcend) {
+                goto fail;
+            }
+            auto char2 = static_cast<uint32_t>(src[1]);
+            if (0xDBFF < char2 && char2 < 0xE000) {
+                grapheme  = ((grapheme - 0xD7F7) * 1024) + char2;
+            }
+        }
+
+        uint32_t chars;
+
+        if (grapheme < 0x80) {
+            result++;
+            if (grapheme == 0) {
+                goto done;
+            }
+        } else if (grapheme < 0x800) {
+            result += 2;
+        } else if (grapheme < 0x10000) {
+            result += 3;
+        } else if (grapheme < 0x200000) {
+            result += 4;
+        } else if (grapheme < 0x4000000) {
+            result += 5;
+        } else if (grapheme > 0x7FFFFFFF) {
+            result += 2;
+        } else {
+            if (static_cast<int32_t>(grapheme) < 0) {
+                result += 2;
+            } else {
+                result += 6;
+            }
+        }
+
+        result += chars;
+    }
+
+fail:
+    result = -1;
+
+done:
+    if (srcchars) {
+        *srcchars = src - srcstart;
+    }
+
+    return result;
+}
+
+int32_t SUniConvertUTF8to16Len(const uint8_t* src, uint32_t srcmaxchars, uint32_t* srcchars) {
+    if (!srcmaxchars || !src) {
+        if (srcchars) {
+            *srcchars = 0;
+        }
+        return -1;
+    }
+
+    auto srcend = srcmaxchars == STORM_MAX_STR ? reinterpret_cast<const uint8_t*>(UINTPTR_MAX) : src + srcmaxchars;
+    auto srcstart = src;
+    int32_t result = 0;
+
+    while (src < srcend) {
+        auto bytes = bytesFromUTF8[*src];
+        if ((src + bytes) >= srcend) {
+            result = -1 - bytes;
+            goto done;
+        }
+
+        uint32_t grapheme = 0;
+
+        switch (bytes) {
+        case 5:
+            grapheme = (grapheme + *src++) << 6;
+        case 4:
+            grapheme = (grapheme + *src++) << 6;
+        case 3:
+            grapheme = (grapheme + *src++) << 6;
+        case 2:
+            grapheme = (grapheme + *src++) << 6;
+        case 1:
+            grapheme = (grapheme + *src++) << 6;
+        case 0:
+            grapheme = (grapheme + *src++) - offsetsFromUTF8[bytes];
+        }
+
+        if (grapheme < 0x10000) {
+            result++;
+            if (grapheme == offsetsFromUTF8[bytes]) {
+                goto done;
+            }
+        } else if (grapheme < 0x110000) {
+            result += 2;
+        } else {
+            result ++;
+        }
+    }
+
+    result = -1;
+
+done:
+    if (srcchars) {
+        *srcchars = src - srcstart;
+    }
+
+    return result;
+}
