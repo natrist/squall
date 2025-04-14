@@ -12,9 +12,11 @@
 #include <algorithm>
 
 #if defined(WHOA_SYSTEM_MAC) || defined(WHOA_SYSTEM_LINUX)
-
 #include <sys/time.h>
+#endif
 
+#if defined(WHOA_SYSTEM_MAC)
+#include <mach/mach_time.h>
 #endif
 
 #define STORM_LOG_MAX_CHANNELS 4
