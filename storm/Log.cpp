@@ -2,6 +2,7 @@
 #include "Log.hpp"
 #include "storm/Thread.hpp"
 #include "storm/Error.hpp"
+#include "storm/option/Options.hpp"
 #include <bc/Memory.hpp>
 #include <bc/os/File.hpp>
 #include <bc/os/Path.hpp>
@@ -58,7 +59,7 @@ static CRITICAL_SECTION s_defaultdir_critsect;
 
 #define UNLOCK(i) LeaveCriticalSection(&s_critsect[i])
 
-#define DESTROYDESTROY(i) DeleteCriticalSection(&s_critsect[i])
+#define DESTROYLOCK(i) DeleteCriticalSection(&s_critsect[i])
 
 #define INITDEFAULTDIRLOCK InitializeCriticalSection(&s_defaultdir_critsect)
 
@@ -66,7 +67,7 @@ static CRITICAL_SECTION s_defaultdir_critsect;
 
 #define UNLOCKDEFAULTDIR LeaveCriticalSection(&s_defaultdir_critsect)
 
-#define DESTROYDEFAULTDIRLOCK DeleteCriticalSection(&s_default_dir_critsect)
+#define DESTROYDEFAULTDIRLOCK DeleteCriticalSection(&s_defaultdir_critsect)
 
 #endif
 
