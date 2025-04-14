@@ -44,7 +44,7 @@ int32_t StormSetOption(int32_t optname, const void* optval, uint32_t optlen) {
         if (optlen != 4) {
             return 0;
         }
-        g_opt.opt10 = *static_cast<const int32_t*>(optval);
+        g_opt.echotooutputdebugstring = *static_cast<const int32_t*>(optval);
         SErrSetLastError(0);
         return 1;
     case 6:

@@ -8,7 +8,7 @@ struct STORMOPTIONS {
     int32_t  serrleaksilentwarning;
     uint32_t wavechunksize;
     int32_t  opt0C;
-    int32_t  opt10;
+    int32_t  echotooutputdebugstring;
     int32_t  opt14;
     int32_t  opt18;
     int32_t  opt1C;

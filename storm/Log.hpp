@@ -16,9 +16,9 @@ DECLARE_STRICT_HANDLE(HSLOG);
 DECLARE_STRICT_HANDLE(HLOCKEDLOG);
 
 void SLogInitialize();
-int  SLogIsInitialized();
+int32_t SLogIsInitialized();
 void SLogDestroy();
-int  SLogCreate(const char* filename, uint32_t flags, HSLOG* log);
+int32_t SLogCreate(const char* filename, uint32_t flags, HSLOG* log);
 void SLogClose(HSLOG log);
 void SLogFlush(HSLOG log);
 void SLogFlushAll();
