@@ -4,7 +4,7 @@
 #include <cstdarg>
 #include <cstdlib>
 
-int32_t SErrDisplayError(uint32_t errorcode, const char* filename, int32_t linenumber, const char* description, int32_t recoverable, uint32_t exitcode, uint32_t a7) {
+int32_t SErrDisplayError(uint32_t errorcode, const char* filename, int32_t linenumber, const char* description, int32_t recoverable, uint32_t exitcode, uint32_t numFramesToSkip) {
     // TODO
 
     printf("\n=========================================================\n");
